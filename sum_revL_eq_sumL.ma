@@ -124,7 +124,7 @@ theorem if_eq_then : ∀l1,l2,e. (sumL l1 = sumL l2) → (sumL (insertAtBottomL 
     we need to prove (sumL (insertAtBottomL (Cons hd tail) e) = plus e (sumL l2))
     that is equivalent to (sumL (Cons hd (insertAtBottomL tail e)) = plus e (sumL l2))
     that is equivalent to (plus hd (sumL (insertAtBottomL tail e)) = plus e (sumL l2))
-   
+
     
     
   
