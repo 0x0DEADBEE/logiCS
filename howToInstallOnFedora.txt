@@ -1,0 +1,5 @@
+1) from a debian-based distro, run "sudo alien -r --scripts matita.deb"
+2) sudo dnf install gtksourceview3 -y
+3) search for libpcre3-8.45-alt1.x86_64.rpm, then sudo rpm -i libpcre3-8.45-alt1.x86_64.rpm
+    https://altlinux.pkgs.org/p10/classic-x86_64/libpcre3-8.45-alt1.x86_64.rpm.html
+4) sudo rpm -i --force matita.rpm
