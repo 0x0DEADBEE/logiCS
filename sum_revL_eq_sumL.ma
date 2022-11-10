@@ -101,8 +101,65 @@ lemma sumL_trans : ∀l1,l2,l3. (((sumL l1 = sumL l2) ∧ (sumL l2 = sumL l3)) �
   by H1 we have (sumL l1 = sumL l2) (H2) and (sumL l2 = sumL l3) (H3)
   done
  qed.
+ 
+ 
+lemma inner_or_outer_S : ∀e. (S (plus e (plus O O))=plus e (S (plus O O))).
+  assume e:nat
+  we proceed by induction on e to prove  (S (plus e (plus O O))=plus e (S (plus O O)))
+  case O
+    we need to prove  (S (plus O (plus O O))=plus O (S (plus O O)))
+    done
+   case S (w:nat)
+    by induction hypothesis we know (S (plus w (plus O O))=plus w (S (plus O O))) (IH1)
+    we need to prove  (S (plus (S w) (plus O O))=plus (S w) (S (plus O O)))
+    that is equivalent to  (S (plus (S w) O )=plus (S w) (S O))
+    that is equivalent to (S (S (plus w O))=S (plus w (S O)))
+    by IH1 done
+  qed.
+    
+    
+ 
+ lemma s_spitted_out : ∀w,e. (S (plus e (plus w O))=plus e (S (plus w O))).
+ assume w:nat
+ assume e:nat
+ we proceed by induction on w to prove (S (plus e (plus w O))=plus e (S (plus w O)))
+ case O
+  we need to prove  (S (plus e (plus O O))=plus e (S (plus O O)))
+  that is equivalent to (S (plus e O)=plus e (S O))
+  by inner_or_outer_S done
+ case S (x:nat)
+  by induction hypothesis we know (S (plus e (plus x O))=plus e (S (plus x O))) (IH1)
+  we need to prove  (S (plus e (plus (S x) O))=plus e (S (plus (S x) O)))
+  that is equivalent to  (S (plus e (S (plus x O)))=plus e (S (S (plus x O))))
+  by IH1, inner_or_outer_S, plus_O, plus_same done
 
+ lemma comm : ∀ hd,e. (plus hd (plus e O) = plus e (plus hd O)).
+  assume hd: nat
+  assume e:nat
+  we proceed by induction on hd to prove (plus hd (plus e O) = plus e (plus hd O))
+  case O
+    we need to prove (plus O (plus e O) = plus e (plus O O))
+    that is equivalent to (plus e O = plus e O)
+    done
+  case S (w:nat)
+    by induction hypothesis we know (plus w (plus e O) = plus e (plus w O)) (IH1)
+    we need to prove  (plus (S w) (plus e O)=plus e (plus (S w) O))
+    that is equivalent to (S (plus w (plus e O))= plus e (S (plus w O))) 
+    
+lemma s_spitted_out : ∀w,e. (S (plus e (plus w O))=plus e (S (plus w O))).
 
+lemma same_sum : ∀hd,tail,e.  (plus hd (sumL (insertAtBottomL tail e))=plus e (sumL (Cons hd tail))).
+  assume hd:nat
+  assume tail : list_nat
+  assume e: nat
+  we proceed by induction on tail to prove (plus hd (sumL (insertAtBottomL tail e))=plus e (sumL (Cons hd tail)))
+  case Nil
+    we need to prove (plus hd (sumL (insertAtBottomL Nil e))=plus e (sumL (Cons hd Nil)))
+    that is equivalent to (plus hd (sumL (Cons e Nil) )= plus e (plus hd (sumL Nil)))
+    that is equivalent to (plus hd (plus e (sumL Nil)) = plus e (plus hd O))
+    that is equivalent to (plus hd (plus e O) = plus e (plus hd O))
+    done
+  
   
 theorem if_eq_then : ∀l1,l2,e. (sumL l1 = sumL l2) → (sumL (insertAtBottomL l1 e) = plus e (sumL l2)).
   assume l1: list_nat
@@ -124,8 +181,6 @@ theorem if_eq_then : ∀l1,l2,e. (sumL l1 = sumL l2) → (sumL (insertAtBottomL 
     we need to prove (sumL (insertAtBottomL (Cons hd tail) e) = plus e (sumL l2))
     that is equivalent to (sumL (Cons hd (insertAtBottomL tail e)) = plus e (sumL l2))
     that is equivalent to (plus hd (sumL (insertAtBottomL tail e)) = plus e (sumL l2))
-
-    
     
   
 theorem sum_L_revL_eq : ∀L. sumL(rev L) = sumL L.
