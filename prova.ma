@@ -145,13 +145,58 @@ theorem bb : ∀X,Y,L. ( ((X=Y)∨(belong X L)) → (belong X (insert Y L))).
         by F, KK done
    
    case or_intror
+    (*
     suppose (belong X L) (H2)
     we proceed by induction on L to prove  (belong X (insert Y L))
       case Nil
       we need to prove  (belong X (insert Y Nil))
       that is equivalent to  (belong X (Cons Y Nil))
       that is equivalent to ((Y=X)∨(belong X Nil))
-      that is equivalent to ((Y=X)∨False)
+      that is equivalent to ((Y=X)∨False)*)
+      we proceed by induction on L to prove  (belong X L→belong X (insert Y L))
+      case Nil
+        we need to prove  (belong X Nil→belong X (insert Y Nil))
+        that is equivalent to (False→belong X (Cons Y Nil))
+        done
+      case Cons (head:ℕ) (tail:list_nat)
+        by induction hypothesis we know (belong X tail→belong X (insert Y tail)) (II)
+        we need to prove  (belong X (Cons head tail)→belong X (insert Y (Cons head tail)))
+        that is equivalent to  ((head=X)∨(belong X tail)→belong X (insert Y (Cons head tail)))
+        that is equivalent to  (head=X∨belong X tail→belong X ( if (leb Y head) then (Cons Y (Cons head tail)) else (Cons head (insert Y tail))))
+        by true_or_false we proved (leb Y head=true ∨ leb Y head=false) (TF)
+        we proceed by cases on TF to prove (head=X∨belong X tail→belong X (if leb Y head then Cons Y (Cons head tail) else Cons head (insert Y tail) ))
+        case or_introl
+          suppose (leb Y head=true) (T)
+          suppose (head=X∨belong X tail) (H2)
+          we need to prove (belong X (Cons Y (Cons head tail))) (KK)
+            that is equivalent to ((Y=X)∨(belong X (Cons head tail)))
+            that is equivalent to ((Y=X)∨((head=X)∨(belong X tail)))
+            by H2, or_intror done
+          >T
+          by T, KK done
+        case or_intror
+          suppose (leb Y head=false) (F)
+          suppose (head=X∨belong X tail) (H2)
+          we need to prove ((belong X (Cons head (insert Y tail)))) (KK)
+            that is equivalent to  ((head=X)∨(belong X (insert Y tail)))
+            we proceed by cases on H2 to prove  (head=X∨belong X (insert Y tail))
+            case or_introl
+              suppose (head=X) (H3)
+              by H3, or_introl done
+            case or_intror
+              suppose (belong X tail) (H3)
+              by H3, II we proved (belong X (insert Y tail)) (H4)
+              by H4, or_intror done
+          >F
+          by F, KK done
+          
+          
+     qed.
+  
+  
+  
+  
+  
   
   
   
