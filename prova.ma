@@ -6,6 +6,19 @@ lemma true_or_false: ∀b. b = true ∨ b = false.
   //
 qed.
 
+let rec leqb n m on n :=
+ match n with
+ [ O => True
+ | S x =>
+    match m with
+    [ O => False
+    | S y => leqb x y
+    ]
+ ].
+
+
+axiom le_from_bool_to_prop : ∀x,H. (leb x H=true) → (leqb x H = True). 
+ 
 inductive list_nat : Type[0] ≝
   | Nil : list_nat
   | Cons : ℕ → list_nat → list_nat.
@@ -278,16 +291,6 @@ analizza n. Il "match" annidato semplicemente analizza la forma di "m",
 ma non giustifica per se alcuna chiamata ricorsiva: è una definizione
 per casi, non per ricorsione.*)
 
-let rec leqb n m on n :=
- match n with
- [ O => True
- | S x =>
-    match m with
-    [ O => False
-    | S y => leqb x y
-    ]
- ].
-
 (*e) definite, per ricorsione strutturale, il predicato ``X è ordinata''*)
 let rec ordered L on L ≝
   match L with
@@ -316,7 +319,41 @@ theorem f : ∀L,x. ordered L → ordered (insert x L).
     that is equivalent to (if (isEmpty T) then True else (leqb H (getHead T)∧ordered T) →ordered (insert x (Cons H T)))
     that is equivalent to (if isEmpty T then True else (leqb H (getHead T)∧ordered T)
     → ordered (if (leb x H) then (Cons x (Cons H T)) else (Cons H (insert x T))))
-    suppose (if isEmpty T then True else (leqb H (getHead T)∧ordered T)) (H2)
+    by true_or_false we proved (isEmpty T=true ∨isEmpty T = false) (H3)
+    we proceed by cases on H3 to prove   (if isEmpty T then True else (leqb H (getHead T)∧ordered T) 
+  →ordered (if leb x H then Cons x (Cons H T) else Cons H (insert x T) ))
+    case or_introl
+      suppose (isEmpty T=true) (H2)
+      we need to prove  (True →ordered (if leb x H then Cons x (Cons H T) else Cons H (insert x T) )) (KK)
+      suppose (True) (TRUE)
+      by true_or_false we proved (leb x H = true ∨ leb x H = false) (H4)
+      we proceed by cases on H4 to prove  (ordered (if leb x H then Cons x (Cons H T) else Cons H (insert x T) ))
+      case or_introl
+        suppose (leb x H=true) (H5)
+         we need to prove  (ordered (Cons x (Cons H T))) (KK)
+         that is equivalent to (if (isEmpty (Cons H T)) then True else ((leqb x (getHead (Cons H T)))∧ordered (Cons H T)))
+         that is equivalent to  (if false then True else (leqb x H)∧ordered (Cons H T))
+         that is equivalent to  (leqb x H ∧ordered (Cons H T))
+         that is equivalent to  (leqb x H∧(if (isEmpty T) then True else ((leqb H (getHead T)∧ordered T))))
+         >H2
+         we need to prove (leqb x H∧if true then True else (leqb H (getHead T)∧ordered T) )
+         that is equivalent to (leqb x H ∧ True)
+         by le_from_bool_to_prop, H5 we proved (leqb x H = True) (H6)
+        by H6, conj, TRUE done
+      >H5
+      we need to prove 
+       (ordered (if true then Cons x (Cons H T) else Cons H (insert x T) ))
+      that is equivalent to  (ordered (Cons x (Cons H T)))
+      by KK done
+     case or_intror
+      suppose (leb x H=false) (H5)
+      >H5
+      we need to prove  (ordered (if false then Cons x (Cons H T) else Cons H (insert x T) ))
+      that is equivalent to (ordered (Cons H (insert x T) ))
+      that is equivalent to 
+    
+         
+         
 
 (*my ex
 Considerare la seguente sintassi per liste di numeri naturali  L ::= [] | ℕ : L , la sintassi C ::= <ℕ, ℕ> per coppie di naturali e le seguenti funzioni definite per ricorsione strutturale:
