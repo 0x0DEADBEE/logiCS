@@ -6,17 +6,6 @@ lemma true_or_false: ∀b. b = true ∨ b = false.
   //
 qed.
 
-
-let rec leqb n m on n :=
- match n with
- [ O => true
- | S x =>
-    match m with
-    [ O => false
-    | S y => leqb x y
-    ]
- ].
-
 inductive list_nat : Type[0] ≝
   | Nil : list_nat
   | Cons : ℕ → list_nat → list_nat.
@@ -25,7 +14,7 @@ let rec insert n L on L ≝
   match L with
   [ Nil ⇒ Cons n Nil
   | Cons head tail ⇒
-    if (leqb n head) then (Cons n (Cons head tail))
+    if (leb n head) then (Cons n (Cons head tail))
     else (Cons head (insert n tail))].
 let rec sort L on L ≝
   match L with
@@ -63,15 +52,27 @@ theorem b : ∀X,Y,L. ((belong X (insert Y L)) →  ((X=Y)∨(belong X L))).
   by induction hypothesis we know ((belong X (insert Y T)) →  ((X=Y)∨(belong X T))) (II)
   we need to prove  (belong X (insert Y (Cons H T))→X=Y∨belong X (Cons H T))
   that is equivalent to (belong X (
-    if (leqb Y H) then (Cons Y (Cons H T))
+    if (leb Y H) then (Cons Y (Cons H T))
     else (Cons H (insert Y T))
   ) → X=Y∨((H=X)∨(belong X T)))
-  by true_or_false we proved ((leqb Y H = true) ∨ (leqb Y H = false)) (TF)
-  we proceed by cases on TF to prove  (belong X (if (leqb Y H) then Cons Y (Cons H T) else Cons H (insert Y T) )
+  by true_or_false we proved ((leb Y H = true) ∨ (leb Y H = false)) (TF)
+  we proceed by cases on TF to prove  (belong X (if (leb Y H) then Cons Y (Cons H T) else Cons H (insert Y T) )
   →X=Y∨(H=X∨belong X T))
   case or_introl
-    suppose (leqb Y H=true) (H1)
-    we need to prove (belong X (Cons Y (Cons H T) ) →X=Y∨(H=X∨belong X T))
+    suppose (leb Y H=true) (H1)
+    we need to prove (belong X (Cons Y (Cons H T) ) →X=Y∨(H=X∨belong X T)) (KK)
+      that is equivalent to ((Y=X)∨(belong X (Cons H T))→X=Y∨(H=X∨belong X T))
+      that is equivalent to  (Y=X∨((H=X)∨(belong X T))→X=Y∨(H=X∨belong X T))
+      suppose (Y=X∨(H=X∨belong X T)) (H2)
+      we proceed by cases on H2 to prove  (X=Y∨(H=X∨belong X T))
+      case or_introl
+        suppose (Y=X) (H3)
+        done
+      case or_intror
+        suppose (H=X∨belong X T) (H3)
+        done
+     by H1, KK done
+        
   
   
   
