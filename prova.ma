@@ -2,8 +2,8 @@ include "basics/logic.ma".
 include "arithmetics/nat.ma".
 include "basics/bool.ma".
 include "basics/core_notation.ma".
-lemma true_or_false: ∀b: bool. b = true ∨ b = false.
- //
+lemma true_or_false: ∀b. b = true ∨ b = false.
+  //
 qed.
 
 
@@ -66,10 +66,11 @@ theorem b : ∀X,Y,L. ((belong X (insert Y L)) →  ((X=Y)∨(belong X L))).
     if (leqb Y H) then (Cons Y (Cons H T))
     else (Cons H (insert Y T))
   ) → X=Y∨((H=X)∨(belong X T)))
-  by true_or_false we proved (leqb Y H = true ∨ leqb Y H = false) (TF)
-  we proceed by cases on TF to prove  (belong X (if leqb Y H then Cons Y (Cons H T) else Cons H (insert Y T) )
+  by true_or_false we proved ((leqb Y H = true) ∨ (leqb Y H = false)) (TF)
+  we proceed by cases on TF to prove  (belong X (if (leqb Y H) then Cons Y (Cons H T) else Cons H (insert Y T) )
   →X=Y∨(H=X∨belong X T))
   case or_introl
+    suppose (leqb Y H=true) (H1)
     we need to prove (belong X (Cons Y (Cons H T) ) →X=Y∨(H=X∨belong X T))
   
   
