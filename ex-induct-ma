@@ -1,0 +1,508 @@
+(**************************************************************************)
+(*       ___	                                                          *)
+(*      ||M||                                                             *)
+(*      ||A||       A project by Andrea Asperti                           *)
+(*      ||T||                                                             *)
+(*      ||I||       Developers:                                           *)
+(*      ||T||       A.Asperti, C.Sacerdoti Coen,                          *)
+(*      ||A||       E.Tassi, S.Zacchiroli                                 *)
+(*      \   /                                                             *)
+(*       \ /        This file is distributed under the terms of the       *)
+(*        v         GNU Lesser General Public License Version 2.1         *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* ATTENZIONE
+   ==========
+   
+   Non modificare la seguente riga che carica la definizione di uguaglianza.
+*)
+
+include "basics/logic.ma".
+
+(* ATTENZIONE
+   ==========
+
+   Quanto segue sono definizioni di tipi di dato/grammatiche e funzioni
+   definite per ricorsione strutturale prese dall'esercitazione della volta
+   scorsa. Non cambiarle e procedere con i nuovi esercizi di dimostrazione
+   che sono intervallati con le definizioni.
+*)
+
+(* nat ::= "O" | "S" nat   *)
+inductive nat : Type[0] ≝
+   O : nat
+ | S : nat → nat.
+
+definition one : nat ≝ S O.
+definition two : nat ≝ S (S O).
+definition three : nat ≝ S (S (S O)).
+
+(* list_nat ::= "Nil" | "Cons" nat list_nat *)
+inductive list_nat : Type[0] ≝
+   Nil : list_nat
+ | Cons : nat → list_nat → list_nat.
+
+(* plus O m = m
+   plus (S x) m = S (plus x m)
+*)
+let rec plus n m on n ≝
+ match n with
+ [ O ⇒ m
+ | S x ⇒ S (plus x m) ].
+
+(* La funzione `sum` che, data una `list_nat`, calcola la
+   somma di tutti i numeri contenuti nella lista. *)
+let rec sum L on L ≝
+ match L with
+ [ Nil ⇒ O
+ | Cons N TL ⇒ plus N (sum TL)
+ ].
+
+(* La funzione binaria `append` che, date due `list_nat` restituisca la
+   `list_nat` ottenuta scrivendo in ordine prima i numeri della prima lista in
+   input e poi quelli della seconda.
+*)
+let rec append L1 L2 on L1 ≝
+ match L1 with
+ [ Nil ⇒ L2
+ | Cons HD TL ⇒ Cons HD (append TL L2)
+ ].
+
+(* Esercizio 1
+   ===========
+
+   Dimostrare l'associatività della somma per induzione strutturale su x.
+*)
+theorem plus_assoc: ∀x,y,z. plus x (plus y z) = plus (plus x y) z.
+ (* Possiamo iniziare fissando una volta per tutte le variabili x,y,z
+    A lezione vedremo il perchè. *)
+ assume x : nat
+ assume y : nat
+ assume z : nat
+ we proceed by induction on x to prove (plus x (plus y z) = plus (plus x y) z)
+ case O
+  (* Scriviamo cosa deve essere dimostrato e a cosa si riduce eseguendo le
+     definizioni. *)
+  we need to prove (plus O (plus y z) = plus(plus O y) z)
+  that is equivalent to (plus y z = plus y z)
+  (* done significa ovvio *)
+  done
+ case S (w: nat)
+  (* Chiamiamo l'ipotesi induttiva IH e scriviamo cosa afferma
+     Ricordate: altro non è che la chiamata ricorsiva su w. *)
+  by induction hypothesis we know (plus w (plus y z) = plus (plus w y) z) (IH)
+  we need to prove (plus (S w) (plus y z) = plus (plus (S w) y) z)
+  that is equivalent to (S (plus w (plus y z)) = plus (S (plus w y)) z)
+  we need to prove (S (plus (plus w y) z) = plus (S (plus w y)) z) (HN)
+  done
+  (* by IH done significa ovvio considerando l'ipotesi IH *)
+  by IH done
+qed.
+
+(* Esercizio 2
+   ===========
+   
+   Definire il linguaggio degli alberi binari (= dove ogni nodo che non è una
+   foglia ha esattamente due figli) le cui foglie siano numeri naturali.
+   
+   tree_nat ::= "Leaf" nat | "Node" nat nat
+*)
+
+inductive tree_nat : Type[0] ≝
+   Leaf : nat → tree_nat
+ | Node : tree_nat → tree_nat → tree_nat
+ .
+
+(* Il seguente albero binario ha due foglie, entrambe contenenti uni. *)
+definition one_one_tree : tree_nat ≝ Node (Leaf one) (Leaf one).
+
+(* Definite l'albero       /\
+                          0 /\
+                           1  2  *)
+definition zero_one_two_tree : tree_nat ≝
+ Node (Leaf O) (Node (Leaf one) (Leaf two)).
+
+
+(* Esercizio 3
+   ===========
+   
+   Definire la funzione `rightmost` che, dato un `tree_nat`, restituisca il
+   naturale contenuto nella foglia più a destra nell'albero. *)
+
+let rec rightmost T on T ≝
+ match T with
+ [ Leaf n ⇒ n
+ | Node N M ⇒ rightmost M
+ ]
+.
+
+theorem test_rightmost : rightmost zero_one_two_tree = two.
+done. qed.
+
+
+(* Esercizio 4
+   ============
+   
+   Definire la funzione `visit` che, dato un `tree_nat`, calcoli la `list_nat`
+   che contiene tutti i numeri presenti nelle foglie dell'albero in input,
+   nell'ordine in cui compaiono nell'albero da sinistra a destra.
+   
+   Suggerimento: per definire tree_nat usare la funzione `append` già definita
+   in precedenza.
+
+   Esempio: `visit zero_one_two_tree = Cons O (Cons one (Cons two Nil))`.    
+*)
+
+let rec visit T on T ≝
+ match T with
+ [ Leaf n ⇒ Cons n Nil
+ | Node N M ⇒ append (visit N) (visit M)
+ ].
+
+theorem test_visit : visit zero_one_two_tree = Cons O (Cons one (Cons two Nil)).
+done. qed.
+
+
+(* Esercizio 5
+   ===========
+
+   La somma di tutti i numeri nella concatenazione di due liste è uguale
+   alla somma delle somme di tutti i numeri nelle due liste. *)
+
+theorem sum_append: ∀L1,L2. sum (append L1 L2) = plus (sum L1) (sum L2).
+ assume L1 : list_nat
+ assume L2 : list_nat
+ we proceed by induction on L1 to prove (sum (append L1 L2) = plus (sum L1) (sum L2))
+ case Nil
+  we need to prove (sum (append Nil L2) = plus (sum Nil) (sum L2))
+  that is equivalent to (sum L2 = plus O (sum L2))
+  done
+  case Cons (N: nat) (L: list_nat)
+  by induction hypothesis we know (sum (append L L2) = plus (sum L) (sum L2)) (II)
+  we need to prove (sum (append (Cons N L) L2) = plus (sum (Cons N L)) (sum L2))
+  that is equivalent to (sum (Cons N (append L L2)) = plus (plus N (sum L)) (sum L2))
+  that is equivalent to (plus N (sum (append L L2)) = plus (plus N (sum L)) (sum L2))
+  (* Per concludere servono sia l'ipotesi induttiva IH che il teorema plus_assoc
+     dimostrato prima. Convincetevene
+
+     Nota: se omettete IH, plus_assoc o entrambi Matita ci riesce lo stesso
+     Rendere stupido un sistema intelligente è complicato... Tuttavia non
+     abusatene: quando scrivete done cercate di avere chiaro perchè il teorema
+     è ovvio e se non vi è chiaro, chiedete. *)
+  by II, plus_assoc done
+qed.
+
+(* La funzione `plusT` che, dato un `tree_nat`, ne restituisce la
+   somma di tutte le foglie. *)
+let rec plusT T on T ≝
+ match T with
+ [ Leaf n ⇒ n
+ | Node N M ⇒ plus (plusT N) (plusT M)
+ ].
+
+
+(* Esercizio 6
+   ===========
+
+   Iniziare a fare l'esercizio 7, commentando quel poco che c'è dell'esercizio 6
+   Nel caso base vi ritroverete, dopo la semplificazione, a dover dimostrare un
+   lemma non ovvio. Tornate quindi all'esercizio 3 che consiste nell'enunciare e
+   dimostrare il lemma. *)
+
+lemma plus_O: ∀N. plus N O = N.
+  assume N:nat
+  we proceed by induction on N to prove (plus N O = N)
+  case O
+    we need to prove (plus O O = O)
+    done
+   case S (w:nat)
+    by induction hypothesis we know (plus w O = w) (II)
+    we need to prove (plus (S w) O = (S w))
+    that is equivalent to (S(plus w O) = S (w))
+    by II
+done 
+qed.
+  
+
+(* Esercizio 7
+   ===========
+
+   Dimostriamo che la `plusT` è equivalente a calcolare la `sum` sul risultato
+   di una `visit`. *)
+
+
+theorem plusT_sum_visit: ∀T. plusT T = sum (visit T).
+ assume T : tree_nat
+ we proceed by induction on T to prove (plusT T = sum (visit T))
+ case Leaf (N : nat)
+  we need to prove (plusT (Leaf N) = sum (visit (Leaf N)))
+  that is equivalent to (N = sum (Cons N Nil))
+  (* Ciò che dobbiamo dimostrare non è ovvio (perchè?). Per proseguire,
+     completate l'esercizio 6 enunciando e dimostrando il lemma che vi serve
+     Una volta risolto l'esercizio 6, questo ramo diventa ovvio usando il lemma.*)
+  by plus_O done
+ case Node (T1:tree_nat) (T2:tree_nat)
+  by induction hypothesis we know (plusT T1 = sum (visit T1)) (IH1)
+  by induction hypothesis we know (plusT T2 = sum (visit T2)) (IH2)
+  we need to prove (plusT (Node T1 T2)=sum (visit (Node T1 T2)))
+  that is equivalent to (plus (plusT T1) (plusT T2) = sum (append (visit T1) (visit T2)))
+  (* Oltre alla due ipotesi induttive, di quale altro lemma dimostrato in
+     precedenza abbiamo bisogno per concludere la prova?*)
+  by IH1,IH2,sum_append done
+qed.
+
+
+(* Un altro modo di calcolare la somma di due numeri: per ricorsione strutturale
+   sul secondo argomento.
+
+   plus' m O = m
+   plus' m (S x) = S (plus' m x)
+*)
+let rec plus' m n on n ≝
+ match n with
+ [ O ⇒ m
+ | S x ⇒ S (plus' m x) ].
+
+
+(* Esercizio 8
+   ============
+
+   Dimostriamo l'equivalenza dei due metodi di calcolo
+   Vi servirà un lemma: capite quale e dimostratelo
+*)
+
+lemma plus_Sy: ∀x,y. plus x (S y) = S (plus x y).
+  assume x : nat
+  assume y : nat
+  we proceed by induction on x to prove (plus x (S y) = S (plus x y))
+  case O
+    we need to prove (plus O (S y) = S (plus O y))
+    that is equivalent to (S y = S y)
+    done
+  case S(w:nat)
+    by induction hypothesis we know (plus w (S y) = S(plus w y)) (II)
+    we need to prove (plus (S w) (S y) = S(plus (S w) y))
+    that is equivalent to (S(plus w (S y)) = S(S(plus w y)))
+    by II
+    done
+qed.
+
+theorem plus_plus': ∀x,y. plus x y = plus' x y.
+ assume x : nat
+ assume y : nat
+ we proceed by induction on y to prove (plus x y = plus' x y)
+ case O
+  we need to prove (plus x O = plus' x O)
+  that is equivalent to (plus x O = x)
+  by plus_O
+  done
+ case S (w: nat)
+  by induction hypothesis we know (plus x w = plus' x w) (II)
+  we need to prove (plus x (S w) = plus' x (S w))
+  that is equivalent to (plus x (S w) = S (plus' x w))
+  by II, plus_Sy
+ (* Nota: la dimostrazione è più facile se andate per induzione su y perchè
+    potrete riciclare un lemma già dimostrato.
+    Se andate per induzione su x vi verrà lo stesso, ma in tal caso avrete
+    bisogno di due lemmi, ognuno dei quali non ancora dimostrati. *)
+ done
+qed.
+
+
+(* Esercizio 9: se finite prima o volete esercitarvi a casa
+   ========================================================
+
+   Dimostriamo l'equivalenza dei due metodi di calcolo plus e plus',
+   questa volta per induzione sul primo argomento x. Avrete bisogno di uno o
+   più lemmi, da scoprire. Ovviamente, NON è consentito usare quanto dimostrato
+   all'esercizio precedente
+   *)
+
+lemma plusi_Sx: ∀x,y. plus' (S x) y = S (plus' x y).
+  assume x : nat
+  assume y : nat
+  we proceed by induction on y to prove (plus' (S x) y = S (plus' x y))
+  case O
+    we need to prove (plus' (S x) O = S (plus' x O))
+    that is equivalent to (S x = S x)
+    done
+  case S(w:nat)
+    by induction hypothesis we know (plus' (S x) w = S(plus' x w)) (II)
+    we need to prove (plus' (S x) (S w) = S(plus' x (S w)))
+    that is equivalent to (S(plus' (S x) w) = S(S(plus' x w)))
+    by II
+    done
+qed.
+
+lemma plusi_O: ∀N. plus' O N = N.
+  assume N:nat
+  we proceed by induction on N to prove (plus' O N = N)
+  case O
+    we need to prove (plus' O O = O)
+    done
+   case S (w:nat)
+    by induction hypothesis we know (plus' O w = w) (II)
+    we need to prove (plus' O (S w) = (S w))
+    that is equivalent to (S(plus' O w) = S (w))
+    by II
+done 
+qed.
+
+
+theorem plus_plus_new: ∀x,y. plus x y = plus' x y.
+ assume x : nat
+ assume y : nat
+ we proceed by induction on x to prove (plus x y = plus' x y)
+ case O
+  we need to prove (plus O y = plus' O y)
+  that is equivalent to (y = plus' O y)
+  by plusi_O
+  done
+ case S (w: nat)
+  by induction hypothesis we know (plus w y = plus' w y) (II)
+  we need to prove (plus (S w) y = plus' (S w) y)
+  that is equivalent to (S(plus w y) = (plus' (S w) y))
+  by II, plusi_Sx
+ (* Nota: la dimostrazione è più facile se andate per induzione su y perchè
+    potrete riciclare un lemma già dimostrato.
+    Se andate per induzione su x vi verrà lo stesso, ma in tal caso avrete
+    bisogno di due lemmi, ognuno dei quali non ancora dimostrati. *)
+ done
+qed.
+
+(* Es 10
+   La funzione binaria `append_n` che, date due `list_nat` restituisca la
+   `list_nat` ottenuta scrivendo in ordine prima i numeri della prima lista in
+   input e poi quelli della seconda.
+*)
+let rec append_n N L on L ≝
+ match L with
+ [ Nil ⇒ Cons N Nil
+ | Cons HD TL ⇒ Cons HD (append_n N TL)
+ ].
+
+
+let rec rev L on L ≝
+ match L with
+ [ Nil ⇒ Nil
+ | Cons HD TL ⇒ append_n HD (rev TL)
+ ].
+ 
+theorem test_rev: rev (Cons one (Cons two (Cons three Nil))) = (Cons three (Cons two (Cons one Nil))).
+done qed.
+
+lemma plus_inv: ∀A,B,C. plus A (plus B C) = plus B (plus A C).
+ assume A: nat
+ assume B: nat
+ assume C: nat
+ we proceed by induction on A to prove (plus A (plus B C) = plus B (plus A C))
+ case O
+  we need to prove (plus O (plus B C) = plus B (plus O C))
+  that is equivalent to (plus B C = plus B (C))
+  done
+ case S (w:nat)
+  by induction hypothesis we know (plus w (plus B C) = plus B (plus w C)) (II)
+  we need to prove (plus (S w) (plus B C) = plus B (plus (S w) C))
+  that is equivalent to (S (plus w (plus B C)) = plus B (S (plus w C)))
+  by II, plus_plus_new
+  done
+qed.
+
+lemma sum_append_equal: 
+ ∀A,B,L .(sum (append_n A (append_n B L)) = plus B (sum (append_n A L))).
+ assume A:nat
+ assume B:nat
+ assume L:list_nat
+ we proceed by induction on L to prove (sum (append_n A (append_n B L)) = plus B (sum (append_n A L)))
+ case Nil
+  we need to prove (sum (append_n A (append_n B Nil)) = plus B (sum(append_n A Nil)))
+  that is equivalent to (sum (append_n A (Cons B Nil)) = plus B (sum(Cons A Nil)))
+  that is equivalent to (sum (Cons B (append_n A Nil)) = plus B (plus A O))
+  that is equivalent to (plus B (plus A O) = plus B (plus A O))
+ done
+ case Cons (HD:nat) (TL:list_nat)
+  by induction hypothesis we know (sum (append_n A (append_n B TL)) = plus B (sum (append_n A TL))) (II)
+  we need to prove (sum (append_n A (append_n B (Cons HD TL))) = plus B (sum (append_n A (Cons HD TL))))
+  that is equivalent to (sum (append_n A (Cons HD (append_n B TL))) = plus B (sum (Cons HD (append_n A TL))))
+  that is equivalent to (sum (Cons HD (append_n A (append_n B TL))) = plus B (sum (Cons HD (append_n A TL))))
+  that is equivalent to (plus HD (sum (append_n A (append_n B TL))) = plus B (plus HD (sum (append_n A TL))))
+  by II 
+ done
+qed.
+
+
+lemma sum_append_equal_plus_sum: 
+ ∀HD,TL. sum (append_n HD (rev TL)) = plus HD (sum TL).
+ assume HD: nat
+ assume TL: list_nat
+ we proceed by induction on TL to prove (sum (append_n HD (rev TL)) = plus HD (sum TL))
+ case Nil
+  we need to prove (sum (append_n HD (rev Nil)) = plus HD (sum Nil))
+  that is equivalent to (sum (append_n HD Nil) = plus HD O)
+  that is equivalent to (sum (Cons HD Nil) = plus HD O)
+  that is equivalent to (plus HD (sum Nil) = plus HD O)
+  done
+ case Cons (H:nat) (T:list_nat)
+  by induction hypothesis we know (sum (append_n HD (rev T)) = plus HD (sum T)) (II)
+  we need to prove (sum (append_n HD (rev (Cons H T))) = plus HD (sum (Cons H T)))
+  that is equivalent to 
+   (sum (append_n HD (append_n H (rev T))) = plus HD (plus H (sum T)))
+  by II, plus_inv, sum_append_equal
+  done
+qed.
+
+
+theorem sum_of_reverse_equal_to_sum: ∀L. sum (rev L) = sum L. 
+ assume L: list_nat
+ we proceed by induction on L to prove (sum (rev L) = sum L)
+ case Nil
+  we need to prove (sum (rev Nil) = sum Nil)
+  that is equivalent to (sum Nil = sum Nil)
+  done
+ case Cons (HD:nat) (TL:list_nat)
+  by induction hypothesis we know (sum (rev TL) = sum TL) (II)
+  we need to prove (sum (rev (Cons HD TL)) = sum (Cons HD TL))
+  that is equivalent to (sum (append_n HD (rev TL)) = plus HD (sum TL))
+  by II, sum_append_equal, plus_inv
+ done
+qed.
+
+(* Esercizio 10,11,…
+   =================
+
+   Volete esercitarvi a casa su altre dimostrazioni facili come queste?
+   Ecco due buoni spunti:
+
+   1) definite la funzione che inserisce un numero in
+      coda a una lista e usatela per definire la funzione rev che restituisce
+      la lista ottenuta leggendo la lista in input dalla fine all'inizio
+      Esempio:
+       rev (Cons 1 (Cons 2 (Cons 3 Nil))) = (Cons 3 (Cons 2 (Cons 1 Nil)))
+      Poi dimostrate che ∀L. sum (rev L) = sum L
+      Per riuscirci vi serviranno una cascata di lemmi intermedi da enunciare
+      e dimostrare
+   2) definite una funzione leq_nat che dati due numeri naturali ritorni true
+      sse il primo è minore o uguale al secondo; usatela per scrivere una funzione
+      che aggiunga un elemento in una lista ordinata di numeri;
+      poi usatela quest'ultima per definire una funzione "sort" che ordina una lista
+      di numeri. Dimostrate che l'algoritmo è corretto procedendo
+      come segue:
+      a) definite, per ricorsione strutturale, il predicato ``X appartiene
+         alla lista L''
+      b) dimostrate che X appartiene all'inserimento di Y nella lista ordinata
+         L sse X è uguale a Y oppure appartiene a L
+      c) dimostrate che se X appartiene alla lista L allora appartiene alla
+         lista sort L
+      d) dimostrate anche il viceversa
+      e) definite, per ricorsione strutturale, il predicato ``X è ordinata''
+      f) dimostrate che se L è ordinata lo è anche la lista ottenuta inserendo
+         X in L
+      g) dimostrate che per ogni L, sort L è ordinata
+
+      Nota: a)-e) sono esercizi semplici. Anche g) è semplice se asserite f)
+      come assioma. La dimostrazione di f) invece è più difficile e
+      potrebbe richiede altri lemmi ausiliari quali la transitività del
+      predicato leq_nat
+*)
+
