@@ -421,6 +421,9 @@ theorem f : ∀L,x. ordered L → ordered (insert x L).
             suppose (leb (S w) H=false) (HH)
             by HH, assurdo_from_bool we proved False (ABS)
             done
+         by K3, H5 we proved (leb H x = true) (H6)
+         by H6, le_from_bool_to_prop we proved (leqb H x=True) (H7)
+         by H7, H9, conj done
             
             
          
