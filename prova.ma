@@ -16,6 +16,7 @@ let rec leqb n m on n :=
     ]
  ].
 
+axiom assurdo_from_bool : ∀x:bool. (x=false)→ False.
 notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
 interpretation "ex_false" 'absurdum A = (False_ind ? A).
 axiom assurdo_1 : (true=false) → False.
@@ -417,6 +418,9 @@ theorem f : ∀L,x. ordered L → ordered (insert x L).
             by induction hypothesis we know (leb w H=false→leb H w=true) (KK)
             we need to prove  (leb (S w) H=false→leb H (S w)=true)
             that is equivalent to  (leb (S w) H=false→leb H (S w)=true)
+            suppose (leb (S w) H=false) (HH)
+            by HH, assurdo_from_bool we proved False (ABS)
+            done
             
             
          
