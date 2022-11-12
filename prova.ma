@@ -16,8 +16,12 @@ let rec leqb n m on n :=
     ]
  ].
 
+notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
+interpretation "ex_false" 'absurdum A = (False_ind ? A).
+axiom assurdo_1 : (true=false) → False.
+axiom assurdo_2 : (false=true) → False.
+axiom le_from_bool_to_prop : ∀x,H. (leb x H=true) → (leqb x H = True).
 
-axiom le_from_bool_to_prop : ∀x,H. (leb x H=true) → (leqb x H = True). 
  
 inductive list_nat : Type[0] ≝
   | Nil : list_nat
@@ -350,9 +354,71 @@ theorem f : ∀L,x. ordered L → ordered (insert x L).
       >H5
       we need to prove  (ordered (if false then Cons x (Cons H T) else Cons H (insert x T) ))
       that is equivalent to (ordered (Cons H (insert x T) ))
-      that is equivalent to 
-    
-         
+      that is equivalent to  (if (isEmpty ((insert x T))) then True else ((leqb H (getHead (insert x T)))∧ordered (insert x T)))
+      by true_or_false we proved (isEmpty (insert x T) = true ∨ isEmpty (insert x T) = false) (H1)
+      we proceed by cases on H1 to prove  (if isEmpty (insert x T) then True else (leqb H (getHead (insert x T))∧ordered (insert x T)) )
+      case or_introl
+        suppose (isEmpty (insert x T)=true) (H6)
+        >H6
+        we need to prove  (if true then True else (leqb H (getHead (insert x T))∧ordered (insert x T)) )
+        that is equivalent to  (True)
+        done
+      case or_intror
+        suppose (isEmpty (insert x T)=false) (H6)
+        >H6
+        we need to prove  (if false then True else (leqb H (getHead (insert x T))∧ordered (insert x T)) )
+        that is equivalent to  (leqb H (getHead (insert x T))∧ordered (insert x T))
+        we need to prove (∀l. (isEmpty l = true) → (ordered l)) (H7)
+          assume l:list_nat
+          we proceed by induction on l to prove   (isEmpty l=true→ordered l)
+          case Nil
+            we need to prove  (isEmpty Nil=true→ordered Nil)
+            that is equivalent to  (true=true→True)
+            done
+          case Cons (H:ℕ) (TL:list_nat)
+            by induction hypothesis we know ((isEmpty TL = true) → (ordered TL)) (KK)
+            we need to prove  (isEmpty (Cons H TL)=true→ordered (Cons H TL))
+            that is equivalent to  (false=true→ordered (Cons H TL))
+            suppose (false=true) (ABS)
+            by ABS, assurdo_2 we proved False (DONE)
+            using (ABSURDUM DONE)
+            done
+        by H7, H2,conj  we proved (ordered T) (H8)
+        by H5,II we proved  (ordered (insert x T)) (H9)
+        we need to prove (∀A,B. isEmpty A = true → (getHead (insert B A) = B)) (K1)
+          assume A:list_nat
+          assume B:ℕ
+          we proceed by induction on A to prove  (isEmpty A=true→getHead (insert B A)=B)
+          case Nil
+            we need to prove  (isEmpty Nil=true→getHead (insert B Nil)=B)
+            that is equivalent to  (true=true→getHead (Cons B Nil)=B)
+            that is equivalent to  (true=true→B=B)
+            done
+          case Cons (HD:ℕ) (TL:list_nat)
+            by induction hypothesis we know ((isEmpty TL=true→getHead (insert B TL)=B)) (KK)
+            we need to prove  (isEmpty (Cons HD TL)=true→getHead (insert B (Cons HD TL))=B)
+            that is equivalent to  (false=true→getHead (insert B (Cons HD TL))=B)
+            suppose (false=true) (ABS)
+            by ABS, assurdo_2 we proved False (DONE)
+            using (ABSURDUM DONE)
+            done
+        by K1, H2 we proved (getHead (insert x T)=x) (K2)
+        >K2
+        we need to prove  ((leb x H=false) → (leb H x=true)) (K3)
+          we proceed by induction on x to prove  (leb x H=false→leb H x=true)
+          case O
+            we need to prove  (leb O H=false→leb H O=true)
+            that is equivalent to  (true=false→leb H O=true)
+            suppose (true=false) (K3)
+            by K3, assurdo_1 we proved False (K4)
+            using (ABSURDUM K4)
+            done
+          case S (w:ℕ)
+            by induction hypothesis we know (leb w H=false→leb H w=true) (KK)
+            we need to prove  (leb (S w) H=false→leb H (S w)=true)
+            that is equivalent to  (leb (S w) H=false→leb H (S w)=true)
+            
+            
          
 
 (*my ex

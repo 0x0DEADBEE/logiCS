@@ -68,6 +68,13 @@ let rec append L1 L2 on L1 ≝
  [ Nil ⇒ L2
  | Cons HD TL ⇒ Cons HD (append TL L2)
  ].
+ 
+theorem thtest : ∀L1. sum L1 = sum L1.
+  assume L:list_nat
+  we proceed by induction on L to prove (sum L = sum L)
+  case Nil
+    we need to prove (L = Nil) (HH)
+    done
 
 (* Esercizio 1
    ===========
