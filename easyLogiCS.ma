@@ -106,12 +106,8 @@ let rec gtP n m on n :=
     ]
  ].
 
-
-
 (*to use only after you supposed (true=false) ! *)
-axiom false_eq_true_then_F : false=true → False.
-axiom true_eq_false_then_F : true=false → False.
-
+axiom true_eq_false_then_F : (true=false)∨(false=true) → False.
 axiom if_else : ∀b:bool. b=true∨b=false.
 axiom def_list_nat : ∀L:list_nat. L=Nil∨(∃H:ℕ. ∃T:list_nat. L=(Cons H T)).
 axiom def_nat : ∀x:ℕ. x=O∨(∃y:ℕ. x= S y).
@@ -121,6 +117,8 @@ axiom lt_bool_to_P : ∀x,y:ℕ. (ltb x y = true) → (ltP x y).
 axiom gt_bool_to_P : ∀x,y:ℕ. (gtb x y = true) → (gtP x y).
 axiom ax_plus_inf : ∀x:ℕ.∃y:ℕ. gtb y x = true.
 axiom ax_minus_inf : ∀x:ℕ.∃y:ℕ. ltb y x = true.
+
+ 
 
 theorem test00 : ∀x:ℕ. ∃y:ℕ. gtP y x.
   assume x:ℕ
