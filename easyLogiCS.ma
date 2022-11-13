@@ -2,16 +2,59 @@ include "basics/logic.ma".
 include "arithmetics/nat.ma".
 include "basics/bool.ma".
 include "basics/core_notation.ma".
+inductive nat : Type[0] ≝
+  | num : ℕ → nat
+  | Inf : nat. 
 inductive list_nat : Type[0] ≝
   | Nil : list_nat
-  | Cons : ℕ → list_nat → list_nat.
+  | Cons : nat → list_nat → list_nat.
 inductive tuple_nat : Type[0] ≝
   | Nil : tuple_nat
-  | Cons : ℕ → ℕ → tuple_nat.
+  | Cons : nat → nat → tuple_nat.
 inductive list_tuple : Type[0] ≝
   | Nil : list_tuple
   | Cons : tuple_nat → list_tuple → list_tuple.
 
+let rec lt (n:nat) (m:nat) on n ≝
+  match n with
+  [ num x⇒ 
+    match m with
+    [ num y ⇒ x≤y
+    | Inf ⇒ True]
+  | Inf ⇒ 
+    match m with
+    [ num y ⇒ False
+    | Inf ⇒ True]
+  ].
+(*not equal*)
+let rec ne (n:nat) (m:nat) on n ≝
+  match n with
+  [ num x⇒ 
+    match m with
+    [ num y ⇒ x=y
+    | Inf ⇒ False]
+  | Inf ⇒ 
+    match m with
+    [ num y ⇒ False
+    | Inf ⇒ True]
+  ].
+  
+theorem t00 : ∀x:nat. ne x Inf → lt x Inf.
+  assume x:nat
+  we proceed by induction on x to prove   (ne x Inf→lt x Inf)
+  case num (y:ℕ)
+    we need to prove   (ne (num y) Inf→lt (num y) Inf)
+    that is equivalent to  (False→lt (num y) Inf)
+    done
+  case Inf
+    we need to prove   (ne Inf Inf→lt Inf Inf)
+    that is equivalent to  (True→True)
+    done
+qed.
+
+ll
+  
+  
 let rec eqb n m on n ≝
   match n with
   [ O ⇒
@@ -135,12 +178,14 @@ theorem test01: ∀x:ℕ. ∃y:ℕ. (ltb y x = true).
   by H2, ex_intro done
 qed.
 
+(*wrong proof since, in order to parse all possible inputs, we didn't proceed by induction!!*)
 theorem test02: ∀x,y:ℕ. ltP x y → gtP y x.
   assume x:ℕ
   we proceed by induction on x to prove  (∀y:ℕ. ltP x y→gtP y x)
   case O
     we need to prove  (∀y:ℕ. ltP O y→gtP y O)
     assume y:ℕ 
+    (*wrong!*)
     by def_nat we proved (y=O∨(∃x:ℕ. y= S x)) (H1)
     we proceed by cases on H1 to prove  (ltP O y→gtP y O)
     case or_introl
