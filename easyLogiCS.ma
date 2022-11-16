@@ -1,16 +1,19 @@
 include "basics/logic.ma".
-include "arithmetics/nat.ma".
+(*include "arithmetics/nat.ma".*)
 include "basics/bool.ma".
 include "basics/core_notation.ma".
-inductive nat : Type[0] ≝
-  | num : ℕ → nat
-  | Inf : nat. 
+inductive nat_O : Type[0] ≝ 
+  | O : nat_O
+  | S : nat_O → nat_O.
+inductive nat_inf : Type[0] ≝
+  | Num : nat_O → nat_inf
+  | Inf : nat_inf. 
 inductive list_nat : Type[0] ≝
   | Nil : list_nat
-  | Cons : nat → list_nat → list_nat.
+  | Cons : nat_inf → list_nat → list_nat.
 inductive tuple_nat : Type[0] ≝
   | Nil : tuple_nat
-  | Cons : nat → nat → tuple_nat.
+  | Cons : nat_inf → nat_inf → tuple_nat.
 inductive list_tuple : Type[0] ≝
   | Nil : list_tuple
   | Cons : tuple_nat → list_tuple → list_tuple.
