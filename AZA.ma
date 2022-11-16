@@ -6,37 +6,31 @@ include "basics/core_notation.ma".
 (*notes: lt, gt, ge built in*)
 (*> = le x y = false
   >= = le x y = false ∨ eq x y = true
-  NOTE CAREFULLY: insted of using False, use  ¬
 *)
-inductive unsigned_nat : Type[0] ≝
-  | Num : ℕ → unsigned_nat
-  | Inf : unsigned_nat.
+(*inductive nat : Type[0] ≝
+  | O : nat
+  | S : nat → nat.*)
+inductive unsigned_int : Type[0] ≝
+  | Num : ℕ → unsigned_int
+  | Inf : unsigned_int.
   (*single L ⇒ list of nats
     double LL ⇒ list of lists
     single T ⇒ single tuple
     double TT ⇒ list of tuples*)
+inductive list_nat : Type[0] ≝
+  | Nil : list_nat
+  | Cons : ℕ → list_nat → list_nat. 
 inductive list : Type[0] ≝
   | Nil : list
-  | L : unsigned_nat → list → list.
+  | L : unsigned_int → list → list.
 inductive tuple : Type[0] ≝
-  | T : unsigned_nat → unsigned_nat → tuple.
+  | T : unsigned_int → unsigned_int → tuple.
 inductive list_tuple : Type[0] ≝
-  | Nil : list_tuple
+  | E : list_tuple (*empty list*)
   | TT : tuple → list_tuple → list_tuple.
-
-let rec eq_prop (n:unsigned_nat) (m:unsigned_nat) on n ≝
-  match n with
-  [ Num (x:ℕ)⇒ 
-    match m with
-    [ Num (y:ℕ) ⇒ x=y
-    | Inf ⇒ False]
-  | Inf ⇒
-    match m with
-    [ Num (y:ℕ) ⇒ False
-    | Inf ⇒ True]
-  ].
-
-let rec eq_bool (n:unsigned_nat) (m:unsigned_nat) on n ≝
+  
+(*used merely for boolean if-conditions*)
+let rec eq (n:unsigned_int) (m:unsigned_int) on n ≝
   match n with
   [ Num (x:ℕ)⇒ 
     match m with
@@ -48,18 +42,7 @@ let rec eq_bool (n:unsigned_nat) (m:unsigned_nat) on n ≝
     | Inf ⇒ true]
   ].
 
-let rec le_prop (n:unsigned_nat) (m:unsigned_nat) on n ≝
-  match n with
-  [ Num (x:ℕ)⇒ 
-    match m with
-    [ Num (y:ℕ) ⇒ x≤y
-    | Inf ⇒ True]
-  | Inf ⇒
-    match m with
-    [ Num (y:ℕ) ⇒ False
-    | Inf ⇒ True]
-  ].
-let rec le_bool (n:unsigned_nat) (m:unsigned_nat) on n ≝
+let rec le (n:unsigned_int) (m:unsigned_int) on n ≝
   match n with
   [ Num (x:ℕ)⇒ 
     match m with
@@ -70,64 +53,171 @@ let rec le_bool (n:unsigned_nat) (m:unsigned_nat) on n ≝
     [ Num (y:ℕ) ⇒ false
     | Inf ⇒ true]
   ].
-axiom le_bool_to_prop : ∀x,y:unsigned_nat. (le_bool x y = true) → le_prop x y.
-axiom eq_bool_to_prop : ∀x,y:unsigned_nat. (eq_bool x y = true) → eq_prop x y.
-axiom de_morgan_law_and1 : ∀x,y:Prop. ¬(x∧y) → (¬x)∨(¬y).
-axiom de_morgan_law_and2 : ∀x,y:Prop. (¬x)∨(¬y) → ¬(x∧y).
-axiom de_morgan_law_or1  : ∀x,y:Prop. ¬(x∨y) → (¬x)∧(¬y).
-axiom de_morgan_law_or2  : ∀x,y:Prop. (¬x)∧(¬y) → ¬(x∨y).
-axiom double_negation1 : ∀x:Prop. (¬¬x) → x.
-(*Logica 6: Semantica classica della logica proposizionale slides pg 6/17*)
-axiom ax_no_contradiction1 : ∀x:Prop. ((x) → ((¬x) = False)).
-axiom ax_no_contradiction2 : ∀x:Prop. (((¬x) = False) → (x)).
-axiom ax_annihilation_and1 : ∀x:Prop. (x∧False) = False.
-axiom ax_annihilation_and2 : ∀x:Prop. (False∧x) = False.
-axiom ax_neutral_element_or: ∀x:Prop. (x∨False) = False.
 
 
-(*if (x<y) == false then x >= y*)
-theorem t00: ∀x,y:unsigned_nat. ¬(le_prop x y∧¬(eq_prop x y)) → (¬(le_prop x y))∨(eq_prop x y).
-  assume x:unsigned_nat
-  assume y:unsigned_nat
-  suppose (¬(le_prop x y∧(¬eq_prop x y))) (H1)
-  by H1, de_morgan_law_and1 we proved ((¬(le_prop x y))∨(¬(¬(eq_prop x y)))) (H2)
-  we proceed by cases on H2 to prove  (¬le_prop x y∨eq_prop x y)
-  case or_introl
-    suppose (¬le_prop x y) (H3)
-    by H3, or_introl done
-  case or_intror
-    suppose (¬¬eq_prop x y) (H3)
-    by H3, double_negation1 we proved (eq_prop x y) (H4)
-    by H4, or_intror done
+let rec get_head (L:list) on L ≝
+  match L with
+  [ Nil ⇒ Inf
+  | L (head:unsigned_int) (tail:list) ⇒ head].
+let rec get_tail (L:list) on L ≝ 
+  match L with 
+  [ Nil ⇒ Nil
+  | L (head:unsigned_int) (tail:list) ⇒ tail].
+let rec concat (L1:list) (L2:list) on L1 ≝
+  match L1 with
+  [ Nil ⇒ L2
+  | L head tail ⇒ L head (concat tail L2)].
+let rec sorted (L1:list) on L1 ≝ 
+  match L1 with
+  [ Nil ⇒  true
+  | L head tail ⇒ (le head (get_head tail))∧sorted tail] .
+
+(* with equal sign then Prop! IMPORTANTE
+let rec test00 n on n ≝
+  match n with
+  [Num (x:ℕ) ⇒ if (le (Num O) (Num O)) then (le (Num O) (Num O))=false else False
+  |Inf ⇒ False].
+theorem test02: ∀b:bool. (b = false ) ∧(b=true) → (b=false).
+
+theorem test01 : ∀x,y:ℕ. (lt x y) ∨ (le x y).
+IMPORTANTE
+*)
+
+
+
+ (*ex esame 16/02/2022*)
+(* per farlo funzionare, settare il caso base di get_head a Num O
+let rec comb (L1:list) (L2:list) on L1 ≝
+  match L1 with
+  [Nil ⇒ E
+  |L (head:unsigned_int) (tail:list) ⇒ (TT (T head (get_head L2)) (comb tail (get_tail L2)))].
+let rec test (t:tuple) on t ≝
+  match t with
+  [T x y ⇒ eq x y].
+let rec red (L:list_tuple) on L ≝
+  match L with
+  [ E ⇒ true
+  | TT (head:tuple) (tail:list_tuple) ⇒ (test head)∧(red tail)].
+
+theorem ex160222 : ∀x:list. red(comb x x)=true.
+  assume x:list
+  we proceed by induction on x to prove  (red (comb x x)=true)
+  case Nil
+    we need to prove  (red (comb Nil Nil)=true)
+    that is equivalent to  (red E=true)
+    that is equivalent to (true = true)
+    done
+  case L (head:unsigned_int) (tail:list)
+    by induction hypothesis we know (red (comb tail tail)=true) (II)
+    we need to prove  (red (comb (L head tail) (L head tail))=true)
+    that is equivalent to  (red ((TT (T head (get_head (L head tail))) (comb tail (get_tail (L head tail)))))=true)
+    that is equivalent to  (red (TT (T head head) (comb tail (get_tail (L head tail)))) =true)
+    that is equivalent to  (red (TT (T head head) (comb tail tail))=true)
+    (*qui per problemi sintattici mi ero bloccato.. tutto assieme*)
+    that is equivalent to  ((test (T head head)∧red (comb tail tail)) = true)
+    that is equivalent to  ((eq head head∧red (comb tail tail))=true)
+    we need to prove (eq head head = true) (KK)
+      we proceed by induction on head to prove  (eq head head=true)
+      case Num (x:ℕ)
+        we need to prove  (eq (Num x) (Num x)=true)
+        that is equivalent to (eqb x x=true)
+        done
+      case Inf
+        we need to prove  (eq Inf Inf=true)
+        done
+    >KK
+    by II done
 qed.
+*)
+(*
+Considerate la seguente sintassi per le liste di numeri interi:
 
-(*if x==y then ¬(x<y)∧¬(y<x)*)
-theorem t01: ∀x,y:unsigned_nat. eq_prop x y → (¬(le_prop x y ∧ ¬eq_prop x y))∧(¬(le_prop y x ∧ ¬eq_prop x y)).
-  assume x:unsigned_nat
-  assume y:unsigned_nat
-  suppose (eq_prop x y) (H1)
-  we need to prove (¬((le_prop x y∧¬eq_prop x y) ∨ (le_prop y x∧¬eq_prop x y))) (KK)
-    by H1, ax_no_contradiction1 we proved ((¬eq_prop x y) = False) (H2)
-    >H2
-    we need to prove  (¬(le_prop x y∧False∨le_prop y x∧False))
-    we need to prove ((le_prop x y∧False) = False) (H3)
-    by ax_annihilation_and1 done
-    >H3
-    we need to prove ((le_prop y x∧False) = False) (H4)
-    by ax_annihilation_and1 done
-    >H4 (*I apply H4*)
-    we need to prove  (¬(False∨False))
-    we need to prove ((False∨False) = False) (H5)
-    by ax_neutral_element_or done
-    >H5
-    we need to prove  (¬False)
-    that is equivalent to (True)
+L ::= [] | Z::L
+
+dove il non-terminale Z genera tutti i numeri interi e :: è associativo a destra.
+
+Considerate il seguente codice che definisce le funzioni @ (concatenazione di due liste), sorted (che ritorna true sse la lista in input è ordinata), hd (che ritorna la testa di una lista non vuota o più infinito se la lista è vuota) e bubble_up (utilizzata come funzione ausiliaria per definire l'algoritmo di ordinamento noto con il nome di bubble sort).
+
+[] @ L = L
+
+(x::tl) @ L = x :: (tl @ L)
+
+sorted([]) = tt
+
+sorted(x::tl) = x <= hd(tl) && sorted(tl)
+
+hd([]) = +oo
+
+hd(x::tl) = x
+
+bubble_up(x,[]) = x::[]
+
+bubble_up(x,y::tl) = if x <= y then x::bubble_up(y,tl) else y::bubble_up(x,tl)
+
+
+
+Dimostrate, per induzione su L, che per ogni x, se sorted(x::L) = tt allora bubble_up(x,L) = x::L.
+*)
+
+let rec bubble_up (x:unsigned_int) (l:list) on l ≝
+  match l with
+  [ Nil ⇒ L x Nil
+  | L y tl ⇒ if (le x y) then (L x (bubble_up y tl)) else (L y (bubble_up x tl))].
+
+theorem da_virtuale0 : ∀y:list. ∀x:unsigned_int. (sorted (L x y)=true) → (bubble_up x y) = (L x y).
+  assume y:list
+  we proceed by induction on y to prove  (∀x:unsigned_int.sorted (L x y)=true→bubble_up x y=L x y)
+  case Nil
+    we need to prove  (∀x:unsigned_int.sorted (L x Nil)=true→bubble_up x Nil=L x Nil)
+    that is equivalent to  (∀x:unsigned_int. (((le x (get_head Nil))∧(sorted Nil))=true→bubble_up x Nil=L x Nil))
+    that is equivalent to  (∀x:unsigned_int.(le x Inf∧sorted Nil)=true→bubble_up x Nil=L x Nil)
+    that is equivalent to  (∀x:unsigned_int.(le x Inf∧true)=true→bubble_up x Nil=L x Nil)
+    that is equivalent to  (∀x:unsigned_int.(le x Inf∧true)=true→L x Nil=L x Nil)
+    we need to prove (∀x:unsigned_int. le x Inf = true) (KK)
+      assume x:unsigned_int
+      we proceed by induction on x to prove  (le x Inf=true)
+      case Num (z:nat)
+      we need to prove  (le (Num z) Inf=true)
+      done
+      case Inf
+      done
+    by KK done
+  case L (head:unsigned_int) (tail:list)
+    by induction hypothesis we know (∀x:unsigned_int.sorted (L x tail)=true→bubble_up x tail=L x tail) (II)
+    we need to prove  (∀x:unsigned_int. sorted (L x (L head tail))=true→bubble_up x (L head tail)=L x (L head tail))
+    that is equivalent to  (∀x:unsigned_int. ((le x (get_head (L head tail)))∧sorted (L head tail))=true→bubble_up x (L head tail)=L x (L head tail))
+    that is equivalent to (∀x:unsigned_int. ((le x head)∧sorted (L head tail))=true→bubble_up x (L head tail)=L x (L head tail))
+    that is equivalent to (∀x:unsigned_int. ((le x head)∧((le head (get_head (tail)))∧sorted(tail)))=true→bubble_up x (L head tail)=L x (L head tail))
+    that is equivalent to (∀x:unsigned_int. ((le x head)∧((le head (get_head (tail)))∧sorted(tail)))=true→
+if (le x head) then (L x (bubble_up head tail)) else (L head (bubble_up x tail)) 
+=L x (L head tail))
+    assume x:unsigned_int
+    we proceed by cases on (le x head) to prove  ((le x head∧(le head (get_head tail)∧sorted tail))=true
+  →if le x head then L x (bubble_up head tail) else L head (bubble_up x tail) 
+   =L x (L head tail))
+      case true
+        we need to prove  ((true∧(le head (get_head tail)∧sorted tail))=true
+  →if true then L x (bubble_up head tail) else L head (bubble_up x tail) 
+   =L x (L head tail))
+        that is equivalent to  ((true∧(le head (get_head tail)∧sorted tail))=true→L x (bubble_up head tail) =L x (L head tail))
+        that is equivalent to (((le head (get_head tail)∧sorted tail))=true→L x (bubble_up head tail) =L x (L head tail))
+        suppose (((le head (get_head tail)∧sorted tail))=true) (H1)
+        we need to prove (∀a,b:bool. (a∧b)=true → (a=true)∧(b=true)) (KK)
+          assume a:bool
+          assume b:bool
+          we proceed by induction on a to prove  ((a∧b)=true→a=true∧b=true)
+          case true
+            done
+          case false
+            done
+            
+        by H1 we have ((le head (get_head tail)) = true) (H1a) and ((sorted tail) = true) (H1b)
+        (*ora dobbiamo tramite le ipotesi H1{a.b} sfrittare le ipotesi induttiva con un risultato intermedio*)
+        we need to prove ((sorted tail=true)∧(le head (get_head tail)=true) → sorted (L head tail)=true) (HH)
+
     
-  
-  
     
-
-
+   
 
   
   
