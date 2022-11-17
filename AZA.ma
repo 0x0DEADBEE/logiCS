@@ -214,6 +214,18 @@ if (le x head) then (L x (bubble_up head tail)) else (L head (bubble_up x tail))
         by H1 we have ((le head (get_head tail)) = true) (H1a) and ((sorted tail) = true) (H1b)
         (*ora dobbiamo tramite le ipotesi H1{a.b} sfrittare le ipotesi induttiva con un risultato intermedio*)
         we need to prove ((sorted tail=true)∧(le head (get_head tail)=true) → sorted (L head tail)=true) (HH)
+          we proceed by induction on tail to prove  (sorted tail=true∧le head (get_head tail)=true→sorted (L head tail)=true)
+          case Nil
+            we need to prove  (sorted Nil=true∧le head (get_head Nil)=true→sorted (L head Nil)=true)
+            that is equivalent to  (true=true∧le head Inf=true→sorted (L head Nil)=true)
+            we need to prove (le head Inf = true) (LL)
+              we proceed by induction on head to prove  (le head Inf=true)
+              case Num (n:nat)
+              done
+              case Inf
+              done
+            done
+          case L (hd:unsigned_int) (tl:list)
 
     
     
