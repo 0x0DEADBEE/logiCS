@@ -54,7 +54,14 @@ let rec le (n:unsigned_int) (m:unsigned_int) on n ≝
     | Inf ⇒ true]
   ].
 
-
+let rec plus (x:unsigned_int) (y:unsigned_int) on x ≝
+  match x with
+  [ Num (z:ℕ) ⇒
+    match y with
+    [ Num (w:ℕ) ⇒Num (z+w) 
+    | Inf ⇒ Inf]
+  | Inf ⇒ Inf
+  ].
 let rec get_head (L:list) on L ≝
   match L with
   [ Nil ⇒ Inf
@@ -70,7 +77,66 @@ let rec concat (L1:list) (L2:list) on L1 ≝
 let rec sorted (L1:list) on L1 ≝ 
   match L1 with
   [ Nil ⇒  true
-  | L head tail ⇒ (le head (get_head tail))∧sorted tail] .
+  | L head tail ⇒ (le head (get_head tail))∧sorted tail].
+
+definition one : unsigned_int ≝ Num (S (O)).
+definition zero : unsigned_int ≝ Num O.
+let rec length (L1:list) on L1 ≝ 
+  match L1 with
+  [ Nil ⇒  zero
+  | L head tail ⇒ plus one (length tail)].
+  
+theorem true_equals_false : (true=false) → False.
+done
+qed.
+theorem false_equals_true : (false=true) → False.
+done
+qed.
+
+(*
+(*qualsiasi lista è finita e ha sempre almeno lunghezza zero*)
+theorem test: ∀l:list. (((le (length l) (Inf)) = true)∧(((le (length l) zero)=false)∨((eq (length l) zero)=true))).
+  assume l:list
+  we proceed by induction on l to prove  (le (length l) Inf=true∧(le (length l) (Num O)=false∨eq (length l) (Num O)=true))
+  case Nil
+    we need to prove  (le (length Nil) Inf=true∧(le (length Nil) (Num O)=false∨eq (length Nil) (Num O)=true))
+    that is equivalent to  (le (Num O) Inf=true∧(le (Num O) (Num O)=false∨eq (Num O) (Num O)=true))
+    done
+  case L (h:unsigned_int) (t:list)
+    by induction hypothesis we know (le (length t) Inf=true∧(le (length t) (Num O)=false∨eq (length t) (Num O)=true)) (II)
+    we need to prove  (le (length (L h t)) Inf=true∧(le (length (L h t)) (Num O)=false∨eq (length (L h t)) (Num O)=true))
+    that is equivalent to (le (length (L h t)) Inf=true∧(le (length (L h t)) (Num O)=false∨eq (plus (Num (S (O))) (length t)) (Num O)=true))
+    that is equivalent to (le (plus (Num (S (O))) (length t)) Inf=true∧(le (plus (Num (S (O))) (length t)) (Num O)=false∨eq (plus (Num (S (O))) (length t)) (Num O)=true))
+    by II we have (le (length t) Inf=true) (IIa) and (le (length t) (Num O)=false∨eq (length t) (Num O)=true) (IIb)
+    we need to prove (∀x:unsigned_int. le x Inf = true) (H1)
+      assume x:unsigned_int
+      we proceed by induction on x to prove  (le x Inf=true)
+      case Num (y:ℕ)
+        done
+      case Inf
+        done
+    we proceed by cases on IIb to prove  (le (plus (Num 1) (length t)) Inf=true∧(le (plus (Num 1) (length t)) (Num O)=false∨eq (plus (Num 1) (length t)) (Num O)=true))
+    case or_introl
+      suppose (le (length t) (Num O)=false) (H2)
+      we need to prove (∀x:unsigned_int. (eq x (Num O) = false) → le x (Num O) = false) (H3)
+        assume x:unsigned_int
+        we proceed by induction on x to prove  (eq x (Num O)=false→le x (Num O)=false)
+        case Num (y:ℕ)
+          we need to prove  (eq (Num y) (Num O)=false→le (Num y) (Num O)=false)
+          we proceed by induction on y to prove  (eq (Num y) (Num O)=false→le (Num y) (Num O)=false)
+          case O
+          we need to prove  (eq (Num O) (Num O)=false→le (Num O) (Num O)=false)
+          that is equivalent to  (true=false→le (Num O) (Num O)=false)
+          suppose (true=false) (NEQ)
+          by true_equals_false, NEQ we proved (False) (ABS)
+          done
+          case S (w:ℕ)
+          done
+        case Inf
+          done
+      we need to prove eq (plus (Num 1) (length t)) 
+      by H3 we proved (le (plus (Num 1) (length t)) (Num O)=false) (H4)*)
+          
   
 notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
 interpretation "ex_false" 'absurdum A = (False_ind ? A).
