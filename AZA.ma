@@ -71,6 +71,9 @@ let rec sorted (L1:list) on L1 ≝
   match L1 with
   [ Nil ⇒  true
   | L head tail ⇒ (le head (get_head tail))∧sorted tail] .
+  
+notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
+interpretation "ex_false" 'absurdum A = (False_ind ? A).
 
 (* with equal sign then Prop! IMPORTANTE
 let rec test00 n on n ≝
@@ -226,6 +229,29 @@ if (le x head) then (L x (bubble_up head tail)) else (L head (bubble_up x tail))
               done
             done
           case L (hd:unsigned_int) (tl:list)
+            by induction hypothesis we know ((sorted tl=true∧le head (get_head tl)=true→sorted (L head tl)=true)) (IH)
+            we need to prove  (sorted (L hd tl)=true∧le head (get_head (L hd tl))=true→sorted (L head (L hd tl))=true)
+            that is equivalent to (sorted (L hd tl)=true∧le head hd=true→sorted (L head (L hd tl))=true)
+            that is equivalent to   (((le hd (get_head tl))∧sorted tl)=true∧le head hd=true→sorted (L head (L hd tl))=true)
+            that is equivalent to (((le hd (get_head tl))∧sorted tl)=true∧le head hd=true→((le head (get_head (L hd tl)))∧sorted (L hd tl))=true)
+            that is equivalent to (((le hd (get_head tl))∧sorted tl)=true∧le head hd=true→((le head hd)∧sorted (L hd tl))=true)
+            that is equivalent to (((le hd (get_head tl))∧sorted tl)=true∧le head hd=true→((le head hd)∧((le hd (get_head tl))∧sorted tl))=true)
+            suppose ((le hd (get_head tl)∧sorted tl)=true∧le head hd=true) (H2)
+            by H2 we have ((le hd (get_head tl)∧sorted tl)=true) (H2a) and (le head hd=true) (H2b)
+            by H2a, H2b done
+        by HH, H1a, H1b we proved (sorted (L head tail)=true) (H2)
+        by H2, II we proved (bubble_up head tail=L head tail) (H3)
+        >H3
+        done
+      case false
+        suppose ((false∧(le head (get_head tail)∧sorted tail))=true) (H1)
+        we need to prove (∀b:bool. (false∧b)=true → False) (H2)
+          done
+        by H1 we proved (False) (ABS)
+        using (ABSURDUM ABS)
+        done
+qed.
+            
 
     
     
