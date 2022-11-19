@@ -62,6 +62,7 @@ let rec plus (x:unsigned_int) (y:unsigned_int) on x ≝
     | Inf ⇒ Inf]
   | Inf ⇒ Inf
   ].
+
 let rec get_head (L:list) on L ≝
   match L with
   [ Nil ⇒ Inf
@@ -310,6 +311,57 @@ if (le x head) then (L x (bubble_up head tail)) else (L head (bubble_up x tail))
         by H1 we proved (False) (ABS)
         using (ABSURDUM ABS)
         done
+qed.
+
+theorem plus_commutative : ∀x,y:unsigned_int. plus x y = plus y x.
+  assume x:unsigned_int
+  assume y:unsigned_int
+  we proceed by induction on x to prove  (plus x y=plus y x)
+  case Num (w:nat)
+    we proceed by induction on y to prove  (plus (Num w) y=plus y (Num w))
+    case Num (z:ℕ)
+    we need to prove  (plus (Num w) (Num z)=plus (Num z) (Num w))
+    that is equivalent to (Num (w+z) = Num (z+w))
+    done
+    case Inf
+    done
+  case Inf
+    we proceed by induction on y to prove (plus Inf y=plus y Inf)
+    case Num (z:ℕ)
+    done
+    case Inf
+    done
+qed.
+  
+(*(∀x.∃y.x ≤ k + y + (−k)) ⇒ ∀y.∃x.k + y ≤ k + x*)
+theorem ex9_20220526 : (∀k:unsigned_int. (∀x:unsigned_int. ∃y:unsigned_int. (le (plus x k) (plus k y))=true)→ (∀a:unsigned_int. ∃b:unsigned_int. (le (plus k a) (plus k b))=true)).
+  assume k:unsigned_int
+  suppose (∀x:unsigned_int.∃y:unsigned_int.le (plus x k) (plus k y)=true) (H1)
+  assume a:unsigned_int
+  by H1 we proved (∃y:unsigned_int.le (plus a k) (plus k y)=true) (H2)
+  let y:unsigned_int such that (le (plus a k) (plus k y)=true) (H3)
+  by plus_commutative we proved (plus k a = plus a k) (H4)
+  by H3,ex_intro done
+qed.
+
+theorem test2 : ∀l:list. eq (length l) Inf = false.
+  assume l:list
+  we proceed by induction on l to prove  (eq (length l) Inf=false)
+  case Nil
+  done
+  case L (head:unsigned_int) (tail:list)
+  by induction hypothesis we know (eq (length tail) Inf=false) (II)
+  we need to prove  (eq (length (L head tail)) Inf=false)
+  that is equivalent to  (eq (plus one (length tail)) Inf=false)
+  we need to prove (eq (length tail) Inf=false →  eq (plus one (length tail)) Inf=false) (H1)
+    (*non + affatto banale, length di tail può essere ancora infinito*)
+    we proceed by induction on (length tail) to prove  (eq (length tail) Inf=false→eq (plus one (length tail)) Inf=false)
+    case Num (w:nat)
+    done
+    case Inf
+    done
+  by H1 we proved  (eq (plus one (length tail)) Inf=false) (H2)
+  done
 qed.
             
 
