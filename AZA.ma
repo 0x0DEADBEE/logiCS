@@ -93,53 +93,47 @@ theorem false_equals_true : (false=true) → False.
 done
 qed.
 
-(*
+notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
+interpretation "ex_false" 'absurdum A = (False_ind ? A).
+
 (*qualsiasi lista è finita e ha sempre almeno lunghezza zero*)
 theorem test: ∀l:list. (((le (length l) (Inf)) = true)∧(((le (length l) zero)=false)∨((eq (length l) zero)=true))).
   assume l:list
-  we proceed by induction on l to prove  (le (length l) Inf=true∧(le (length l) (Num O)=false∨eq (length l) (Num O)=true))
+  we proceed by induction on l to prove ( (le (length l) Inf=true∧(le (length l) zero=false∨eq (length l) zero=true)))
   case Nil
-    we need to prove  (le (length Nil) Inf=true∧(le (length Nil) (Num O)=false∨eq (length Nil) (Num O)=true))
-    that is equivalent to  (le (Num O) Inf=true∧(le (Num O) (Num O)=false∨eq (Num O) (Num O)=true))
+    we need to prove  (le (length Nil) Inf=true∧(le (length Nil) zero=false∨eq (length Nil) zero=true))
+    that is equivalent to  (le zero Inf=true∧(le zero zero=false∨eq (length Nil) zero=true))
     done
-  case L (h:unsigned_int) (t:list)
-    by induction hypothesis we know (le (length t) Inf=true∧(le (length t) (Num O)=false∨eq (length t) (Num O)=true)) (II)
-    we need to prove  (le (length (L h t)) Inf=true∧(le (length (L h t)) (Num O)=false∨eq (length (L h t)) (Num O)=true))
-    that is equivalent to (le (length (L h t)) Inf=true∧(le (length (L h t)) (Num O)=false∨eq (plus (Num (S (O))) (length t)) (Num O)=true))
-    that is equivalent to (le (plus (Num (S (O))) (length t)) Inf=true∧(le (plus (Num (S (O))) (length t)) (Num O)=false∨eq (plus (Num (S (O))) (length t)) (Num O)=true))
-    by II we have (le (length t) Inf=true) (IIa) and (le (length t) (Num O)=false∨eq (length t) (Num O)=true) (IIb)
-    we need to prove (∀x:unsigned_int. le x Inf = true) (H1)
+  case L (head:unsigned_int) (tail:list)
+    by induction hypothesis we know (le (length tail) Inf=true∧(le (length tail) zero=false∨eq (length tail) zero=true)) (II)
+    we need to prove (le (length (L head tail)) Inf=true∧(le (length (L head tail)) zero=false∨eq (length (L head tail)) zero=true))
+    that is equivalent to (le (plus one (length tail)) Inf=true∧(le (length (L head tail)) zero=false∨eq (length (L head tail)) zero=true))
+    that is equivalent to (le (plus one (length tail)) Inf=true∧(le (plus one (length tail)) zero=false∨eq (length (L head tail)) zero=true))
+    that is equivalent to (le (plus one (length tail)) Inf=true∧(le (plus one (length tail)) zero=false∨eq (plus one (length tail)) zero=true))
+    we need to prove (∀x:unsigned_int. le x Inf=true) (H1)
       assume x:unsigned_int
       we proceed by induction on x to prove  (le x Inf=true)
-      case Num (y:ℕ)
-        done
+      case Num (w:ℕ)
+      done
       case Inf
-        done
-    we proceed by cases on IIb to prove  (le (plus (Num 1) (length t)) Inf=true∧(le (plus (Num 1) (length t)) (Num O)=false∨eq (plus (Num 1) (length t)) (Num O)=true))
-    case or_introl
-      suppose (le (length t) (Num O)=false) (H2)
-      we need to prove (∀x:unsigned_int. (eq x (Num O) = false) → le x (Num O) = false) (H3)
-        assume x:unsigned_int
-        we proceed by induction on x to prove  (eq x (Num O)=false→le x (Num O)=false)
-        case Num (y:ℕ)
-          we need to prove  (eq (Num y) (Num O)=false→le (Num y) (Num O)=false)
-          we proceed by induction on y to prove  (eq (Num y) (Num O)=false→le (Num y) (Num O)=false)
-          case O
-          we need to prove  (eq (Num O) (Num O)=false→le (Num O) (Num O)=false)
-          that is equivalent to  (true=false→le (Num O) (Num O)=false)
-          suppose (true=false) (NEQ)
-          by true_equals_false, NEQ we proved (False) (ABS)
-          done
-          case S (w:ℕ)
-          done
-        case Inf
-          done
-      we need to prove eq (plus (Num 1) (length t)) 
-      by H3 we proved (le (plus (Num 1) (length t)) (Num O)=false) (H4)*)
+      done
+    by H1 we proved (le (plus one (length tail)) Inf=true) (H2)
+    we need to prove (∀x:unsigned_int. le (plus one x) zero = false) (H3)
+      assume x:unsigned_int
+      we proceed by induction on x to prove  (le (plus one x) zero=false)
+      case Num (w:ℕ)
+      done
+      case Inf
+      done
+    by H3 we proved ((le (plus one (length tail)) zero)=false) (H4)
+    by H4, or_introl we proved (le (plus one (length tail)) zero=false∨eq (plus one (length tail)) zero=true) (H5)
+    by H2, H5, conj done
+qed.
+    
+      
           
   
-notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
-interpretation "ex_false" 'absurdum A = (False_ind ? A).
+
 
 (* with equal sign then Prop! IMPORTANTE
 let rec test00 n on n ≝
