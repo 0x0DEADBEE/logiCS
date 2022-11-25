@@ -95,6 +95,13 @@ theorem gauss : ∀x:ℕ. eqb (sum_nat x) ((1+1)*(x*(x+1))) = true.
   that is equivalent to  (eqb ((S w) + (sum_nat w)) ((1+1)*(S w*(S w+1)))=true)
   we need to prove (∀a,b:ℕ. eqb a b = true → a=b) (K1)
   done
+  by II, K1 we proved ((sum_nat w)=((1+1)*(w*(w+1)))) (H1)
+  >H1
+  we need to prove (S w = w+1) (K2)
+  done
+  >K2
+  we need to prove (w+1+(1+1)*(w*(w+1)) = (1+1)*((w+1)*(w+1+1))) (H2)
+  done
 
   
 let rec get_head (L:list) on L ≝
