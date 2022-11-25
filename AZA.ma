@@ -84,30 +84,16 @@ let rec sum_nat (x:ℕ) on x ≝
   | S (w:ℕ) ⇒ (S w)+ (sum_nat w) 
   ].
 
-theorem gauss : ∀x:ℕ. eqb (sum_nat x) ((1+1)*(x*(x+1))) = true.
+theorem gauss : ∀x:ℕ. eqb ((1+1)*(sum_nat x)) (x*(x+1)) = true.
   assume x:ℕ
-  we proceed by induction on x to prove  (eqb (sum_nat x) ((1+1)*(x*(x+1)))=true)
+  we proceed by induction on x to prove  (eqb ((1+1)*sum_nat x) (x*(x+1))=true)
   case O
   done
   case S (w:ℕ)
-  by induction hypothesis we know (eqb (sum_nat w) ((1+1)*(w*(w+1)))=true) (II)
-  we need to prove  (eqb (sum_nat (S w)) ((1+1)*(S w*(S w+1)))=true)
-  that is equivalent to  (eqb ((S w) + (sum_nat w)) ((1+1)*(S w*(S w+1)))=true)
-  we need to prove (∀a,b:ℕ. eqb a b = true → a=b) (K1)
-  done
-  by II, K1 we proved ((sum_nat w)=((1+1)*(w*(w+1)))) (H1)
-  >H1
-  we need to prove (S w = w+1) (K2)
-  done
-  >K2
-  we need to prove (w+1+(1+1)*(w*(w+1))=(1+1)*((w+1)*(w+1+1))) (H2)
-  we need to prove (1+1=2) (K3)
-  done
-  >K3
-  we need to prove  (w+1+2*(w*(w+1))=2*((w+1)*(w+1+1)))
-  we need to prove (∀y:ℕ. y+2*(w*(y))=2*((y)*(y+1))) (H2)
-  done
-  
+    by induction hypothesis we know (eqb ((1+1)*sum_nat w) (w*(w+1))=true) (II)
+    we need to prove (∀a,b:ℕ. eqb a b=true → a=b) (K1)
+    done (*eventually It will make it!*)
+    by K1, II we proved (2*
 
   
 let rec get_head (L:list) on L ≝
