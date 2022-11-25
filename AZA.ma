@@ -83,25 +83,18 @@ let rec sum_nat (x:ℕ) on x ≝
   [ O ⇒ O
   | S (w:ℕ) ⇒ (S w)+ (sum_nat w) 
   ].
-  
-let rec sum (x:unsigned_int) on x ≝
-  match x with
-  [ Num (y:ℕ) ⇒ if (eq (Num y) zero) then zero else (plus x (Num (sum_nat (y-1))))
-  | Inf ⇒ Inf].
-  
-  
 
-theorem gauss_sum : ∀x:unsigned_int. (eq (sum x) (mult two (mult x (plus x one))) = true).
-  assume x:unsigned_int
-  we proceed by induction on x to prove  (eq (sum x) (mult two (mult x (plus x one)))=true)
-  case Num (w:ℕ)
-  we proceed by induction on w to prove  (eq (sum (Num w)) (mult two (mult (Num w) (plus (Num w) one)))=true)
-    case O
-    done
-    case S (y:ℕ)
-    by induction hypothesis we know (eq (sum (Num y)) (mult two (mult (Num y) (plus (Num y) one)))=true) (II)
-    we need to prove  (eq (sum (Num (S y))) (mult two (mult (Num (S y)) (plus (Num (S y)) one)))=true)
-    that is equivalent to  (eq (sum (Num (S y))) (mult two (mult (Num (S y)) (plus (Num (S y)) one)))=true)
+theorem gauss : ∀x:ℕ. eqb (sum_nat x) ((1+1)*(x*(x+1))) = true.
+  assume x:ℕ
+  we proceed by induction on x to prove  (eqb (sum_nat x) ((1+1)*(x*(x+1)))=true)
+  case O
+  done
+  case S (w:ℕ)
+  by induction hypothesis we know (eqb (sum_nat w) ((1+1)*(w*(w+1)))=true) (II)
+  we need to prove  (eqb (sum_nat (S w)) ((1+1)*(S w*(S w+1)))=true)
+  that is equivalent to  (eqb ((S w) + (sum_nat w)) ((1+1)*(S w*(S w+1)))=true)
+  we need to prove (∀a,b:ℕ. eqb a b = true → a=b) (K1)
+  done
 
   
 let rec get_head (L:list) on L ≝
