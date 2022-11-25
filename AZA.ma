@@ -58,11 +58,52 @@ let rec plus (x:unsigned_int) (y:unsigned_int) on x ≝
   match x with
   [ Num (z:ℕ) ⇒
     match y with
-    [ Num (w:ℕ) ⇒Num (z+w) 
+    [ Num (w:ℕ) ⇒Num (z+w)
     | Inf ⇒ Inf]
   | Inf ⇒ Inf
   ].
 
+definition two : unsigned_int ≝ Num (S(S(O))).
+definition one : unsigned_int ≝ Num (S (O)).
+definition zero : unsigned_int ≝ Num O.
+
+let rec mult (x:unsigned_int) (y:unsigned_int) on x ≝
+  match x with
+  [ Num (z:ℕ) ⇒ 
+    match y with 
+    [ Num (w:ℕ) ⇒ Num (z*w) 
+    | Inf ⇒ Inf
+    ]
+  | Inf ⇒ Inf
+  ].
+
+
+let rec sum_nat (x:ℕ) on x ≝
+  match x with
+  [ O ⇒ O
+  | S (w:ℕ) ⇒ (S w)+ (sum_nat w) 
+  ].
+  
+let rec sum (x:unsigned_int) on x ≝
+  match x with
+  [ Num (y:ℕ) ⇒ if (eq (Num y) zero) then zero else (plus x (Num (sum_nat (y-1))))
+  | Inf ⇒ Inf].
+  
+  
+
+theorem gauss_sum : ∀x:unsigned_int. (eq (sum x) (mult two (mult x (plus x one))) = true).
+  assume x:unsigned_int
+  we proceed by induction on x to prove  (eq (sum x) (mult two (mult x (plus x one)))=true)
+  case Num (w:ℕ)
+  we proceed by induction on w to prove  (eq (sum (Num w)) (mult two (mult (Num w) (plus (Num w) one)))=true)
+    case O
+    done
+    case S (y:ℕ)
+    by induction hypothesis we know (eq (sum (Num y)) (mult two (mult (Num y) (plus (Num y) one)))=true) (II)
+    we need to prove  (eq (sum (Num (S y))) (mult two (mult (Num (S y)) (plus (Num (S y)) one)))=true)
+    that is equivalent to  (eq (sum (Num (S y))) (mult two (mult (Num (S y)) (plus (Num (S y)) one)))=true)
+
+  
 let rec get_head (L:list) on L ≝
   match L with
   [ Nil ⇒ Inf
@@ -80,8 +121,7 @@ let rec sorted (L1:list) on L1 ≝
   [ Nil ⇒  true
   | L head tail ⇒ (le head (get_head tail))∧sorted tail].
 
-definition one : unsigned_int ≝ Num (S (O)).
-definition zero : unsigned_int ≝ Num O.
+
 let rec length (L1:list) on L1 ≝ 
   match L1 with
   [ Nil ⇒  zero
@@ -150,7 +190,7 @@ IMPORTANTE
 
 
  (*ex esame 16/02/2022*)
-(* per farlo funzionare, settare il caso base di get_head a Num O
+(* per farlo funzionare, settare il caso base di get_head a Num O o zero
 let rec comb (L1:list) (L2:list) on L1 ≝
   match L1 with
   [Nil ⇒ E
@@ -363,7 +403,8 @@ theorem test2 : ∀l:list. eq (length l) Inf = false.
   by H1 we proved  (eq (plus one (length tail)) Inf=false) (H2)
   done
 qed.
-            
+
+
 
     
     
