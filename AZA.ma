@@ -100,8 +100,14 @@ theorem gauss : ∀x:ℕ. eqb (sum_nat x) ((1+1)*(x*(x+1))) = true.
   we need to prove (S w = w+1) (K2)
   done
   >K2
-  we need to prove (w+1+(1+1)*(w*(w+1)) = (1+1)*((w+1)*(w+1+1))) (H2)
+  we need to prove (w+1+(1+1)*(w*(w+1))=(1+1)*((w+1)*(w+1+1))) (H2)
+  we need to prove (1+1=2) (K3)
   done
+  >K3
+  we need to prove  (w+1+2*(w*(w+1))=2*((w+1)*(w+1+1)))
+  we need to prove (∀y:ℕ. y+2*(w*(y))=2*((y)*(y+1))) (H2)
+  done
+  
 
   
 let rec get_head (L:list) on L ≝
