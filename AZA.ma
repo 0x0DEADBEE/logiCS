@@ -92,8 +92,30 @@ theorem gauss : ∀x:ℕ. eqb ((1+1)*(sum_nat x)) (x*(x+1)) = true.
   case S (w:ℕ)
     by induction hypothesis we know (eqb ((1+1)*sum_nat w) (w*(w+1))=true) (II)
     we need to prove (∀a,b:ℕ. eqb a b=true → a=b) (K1)
-    done (*eventually It will make it!*)
-    by K1, II we proved (2*
+    done (*eventually It will make it!; let it run for a while*)
+    by K1, II we proved ((1+1)*sum_nat w = w*(w+1)) (H1)
+    we need to prove (S w = w+1) (K2)
+    done
+    we need to prove  (eqb ((1+1)*sum_nat (S w)) (S w*(S w+1))=true)
+    that is equivalent to  (eqb ((1+1)*((S w)+(sum_nat w))) (S w*(S w+1))=true)
+    we need to prove (∀a,b,c:ℕ. a*(b+c) = a*b + a*c) (K3)
+    done
+    by K3 we proved ((1+1)*(S w+sum_nat w) = (1+1)*(S w) + (1+1)*(sum_nat w)) (K4)
+    >K4
+    >H1
+    we need to prove (S w = w+1) (K5)
+    done
+    >K5
+    we need to prove  ((1+1)*(w+1)+w*(w+1) = (w+1)*(w+1+1)) (K6)
+      we need to prove (∀a,b,c:ℕ. a*c + b*c = c*(b+a)) (K7)
+      done
+      by K7 we proved ((1+1)*(w+1)+w*(w+1) = (w+1)*(w+1+1)) (H2)
+      >H2
+      done
+    >K6
+    done
+qed.
+    
 
   
 let rec get_head (L:list) on L ≝
