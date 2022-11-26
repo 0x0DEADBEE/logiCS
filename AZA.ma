@@ -91,7 +91,10 @@ theorem gauss : ∀x:ℕ. eqb ((1+1)*(sum_nat x)) (x*(x+1)) = true.
   done
   case S (w:ℕ)
     by induction hypothesis we know (eqb ((1+1)*sum_nat w) (w*(w+1))=true) (II)
-    we need to prove (∀a,b:ℕ. eqb a b=true → a=b) (K1)
+    we need to prove (∀a,b:ℕ. eqb a b=true → a=b)(K1)
+    assume a:ℕ
+    assume b:ℕ
+    suppose (eqb a b=true) (K9)
     done (*eventually It will make it!; let it run for a while*)
     by K1, II we proved ((1+1)*sum_nat w = w*(w+1)) (H1)
     we need to prove (S w = w+1) (K2)
@@ -141,6 +144,12 @@ let rec length (L1:list) on L1 ≝
   [ Nil ⇒  zero
   | L head tail ⇒ plus one (length tail)].
   
+  
+let rec belongs (x:unsigned_int) (L1:list) on L1 ≝
+  match L1 with
+  [ Nil ⇒ false
+  | L head tail ⇒ eq head x ∨(belongs x tail)].
+
 theorem true_equals_false : (true=false) → False.
 done
 qed.
@@ -150,6 +159,8 @@ qed.
 
 notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
 interpretation "ex_false" 'absurdum A = (False_ind ? A).
+
+theorem slide: ∀L1:list. ∃L2:list. (sorted(L2)=true)∧(∀z:unsigned_int. (belongs z L1)=true → (belongs z L2)=true).
 
 (*qualsiasi lista è finita e ha sempre almeno lunghezza zero*)
 theorem test: ∀l:list. (((le (length l) (Inf)) = true)∧(((le (length l) zero)=false)∨((eq (length l) zero)=true))).
