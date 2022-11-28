@@ -160,7 +160,16 @@ qed.
 notation "'ABSURDUM' A" non associative with precedence 89 for @{'absurdum $A}.
 interpretation "ex_false" 'absurdum A = (False_ind ? A).
 
-theorem slide: ∀L1:list. ∃L2:list. (sorted(L2)=true)∧(∀z:unsigned_int. (belongs z L1)=true → (belongs z L2)=true).
+(*
+theorem slide: ∀L1:list. ∃L2:list. (sorted(L2)=true)∧(∀z:unsigned_int. (((belongs z L1)=true → (belongs z L2)=true) ∧ ((belongs z L2)=true → (belongs z L1)=true))).
+  assume L1:list
+  we proceed by induction on L1 to prove ( ∃L2:list. (sorted(L2)=true)∧(∀z:unsigned_int. (((belongs z L1)=true → (belongs z L2)=true) ∧ ((belongs z L2)=true → (belongs z L1)=true))))
+  case Nil
+  we need to prove (∃L2:list. sorted L2=true∧(∀z:unsigned_int.(belongs z Nil=true→belongs z L2=true)∧(belongs z L2=true→belongs z Nil=true)))
+*)
+  
+  
+    
 
 (*qualsiasi lista è finita e ha sempre almeno lunghezza zero*)
 theorem test: ∀l:list. (((le (length l) (Inf)) = true)∧(((le (length l) zero)=false)∨((eq (length l) zero)=true))).
@@ -429,15 +438,113 @@ theorem test2 : ∀l:list. eq (length l) Inf = false.
   done
 qed.
 
+(*positive ℚ*)
+inductive rat : Type[0] ≝
+  | Q : ℕ → ℕ → rat.
+let rec exp x y on y ≝
+  match y with
+  [ O ⇒ 1
+  | S (n:ℕ) ⇒ x*(exp x n)].
+let rec sum_2_exp n on n ≝
+  match n with
+  [ O ⇒ 1
+  | S (x:ℕ) ⇒ exp 2 (S x) + (sum_2_exp x)].
+
+lemma equazioni:  ∀a,b:ℕ. (a + b = 2*b) → (a = b).
+  assume a:ℕ
+  we proceed by cases on a to prove  (∀b:ℕ.a+b=2*b→a=b)
+  case O
+  done
+  case S (w:ℕ)
+  assume b:ℕ
+  we proceed by cases on b to prove  (S w+b=2*b→S w=b)
+  case O
+  done
+  case S (y:ℕ)
+  we need to prove (S w+S y = 2+ w + y) (H1)
+  done
+  we need to prove (2*S y = 2 + 2*y) (H2)
+  done
+  >H1
+  >H2
+  we need to prove ((2+w+y=2+2*y) → (w +y = 2*y)) (H3)
+  done
+  suppose (2+w+y=2+2*y) (H4)
+  by H4, H3 we proved (w +y = 2*y) (H5)
+  we need to prove ((w +y = 2*y) → (w=y)) (H6)
+  done
+  by H6, H5 we proved (w=y) (H7)
+  by H7 done
+qed.
+
+lemma equazioni_b: ∀a,b:ℕ. (a = b) → (a + b = 2*b).
+  assume a:ℕ
+  we proceed by cases on a to prove  (∀b:ℕ.a=b→a+b=2*b)
+  case O
+  done
+  case S (w:ℕ)
+  assume b:ℕ
+  we proceed by cases on b to prove  (S w=b→S w+b=2*b)
+  case O
+  done
+  case S (y:ℕ)
+  suppose (S w=S y) (H1)
+  by H1 we proved (w=y) (H2)
+  >H2
+  done
+qed.
+  
+
+theorem test02: ∀x:ℕ. (sum_2_exp x) + 1 = exp 2 (x+1).
+  assume x:ℕ
+  we proceed by induction on x to prove  (sum_2_exp x+1=exp 2 (x+1))
+  case O
+  done
+  case S (y:ℕ)
+  by induction hypothesis we know ((sum_2_exp y) + 1 = exp 2 (y+1)) (II)
+  we need to prove  (sum_2_exp (S y)+1=exp 2 (S y+1))
+  that is equivalent to (exp 2 (S y) + sum_2_exp y+1=exp 2 (S y+1))
+  that is equivalent to  ( exp 2 (S y) +sum_2_exp y+1=2*(exp 2 (y+1)))
+  by II we proved (exp 2 (y+1)= sum_2_exp y+1) (H1)
+  >H1
+  we need to prove  (exp 2 (S y) +(sum_2_exp y)+1=2*(sum_2_exp y+1))
+  we need to prove (exp 2 (S y) = (sum_2_exp y+1)) (H2)
+  by II done
+  >H2
+  done(*EVENTUALLY IT MADE IT!!!*)
+qed.
+
+let rec geom_serie n on n ≝
+  match n with [
+  O ⇒ Q O O
+  | S (x:ℕ) ⇒ Q (sum_2_exp (S x)-1) (exp 2 (S x))  
+  ].
+
+let rec num q on q ≝
+  match q with [
+  Q n d ⇒ n
+  ].
+let rec den q on q ≝
+  match q with [
+  Q n d ⇒ d
+  ].
+  
+theorem test003: ∀x:ℕ. (leb (num (geom_serie x)) (den (geom_serie x)) = true) ∧ (eqb (num (geom_serie x)) (den (geom_serie x)) = false).
+  assume x:ℕ
+  we proceed by induction on x to prove  (leb (num (geom_serie x)) (den (geom_serie x))=true∧eqb (num (geom_serie x)) (den (geom_serie x))=false)
+  case O
+  we need to prove  (leb (num (geom_serie O)) (den (geom_serie O))=true∧eqb (num (geom_serie O)) (den (geom_serie O))=false)
+  that is equivalent to (leb O (S O)=true∧eqb (num (geom_serie O)) (den (geom_serie O))=false)
+  that is equivalent to (leb O (S O)=true∧eqb O (den (geom_serie O))=false)
+  done
+  
+  
+  
 
 
-    
-    
-   
 
-  
-  
-  
-  
-  
-  
+
+
+
+
+
