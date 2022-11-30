@@ -587,8 +587,15 @@ theorem test003: ∀x:ℕ. (leb (num (geom_serie x)) (den (geom_serie x)) = true
   case or_introl
   done
   case or_intror
-  
-  
+  suppose (∃d:ℕ.b=S d) (H6)
+  let d:ℕ such that (b=S d) (H7)
+  >H7
+  we need to prove (eqb d c = true ∨ eqb d c = false) (H8)
+  done
+  we proceed by cases on H8 to prove  (leb (S d) (S c)=true→leb (S c+S d) (2*S c)=true)
+  case or_introl
+  suppose (eqb d c=true) (H10)
+  we need to prove 
   
   
   
