@@ -516,12 +516,12 @@ qed.
 
 let rec geom_serie n on n ≝
   match n with [
-  O ⇒ Q O O
-  | S (x:ℕ) ⇒ Q (sum_2_exp (S x)-1) (exp 2 (S x))  
+  O ⇒ Q O (S O)
+  | S (x:ℕ) ⇒ Q (sum_2_exp x) (exp 2 (S x))  
   ].
 
 let rec num q on q ≝
-  match q with [
+  match (q:rat) with [
   Q n d ⇒ n
   ].
 let rec den q on q ≝
@@ -531,12 +531,73 @@ let rec den q on q ≝
   
 theorem test003: ∀x:ℕ. (leb (num (geom_serie x)) (den (geom_serie x)) = true) ∧ (eqb (num (geom_serie x)) (den (geom_serie x)) = false).
   assume x:ℕ
-  we proceed by induction on x to prove  (leb (num (geom_serie x)) (den (geom_serie x))=true∧eqb (num (geom_serie x)) (den (geom_serie x))=false)
+  we need to prove (∀x:ℕ. (x=O∨∃w:ℕ. x=(S w))) (H9)
+  assume x:ℕ
+  we proceed by cases on x to prove  (x=O∨(∃w:ℕ.x=S w))
   case O
-  we need to prove  (leb (num (geom_serie O)) (den (geom_serie O))=true∧eqb (num (geom_serie O)) (den (geom_serie O))=false)
-  that is equivalent to (leb O (S O)=true∧eqb (num (geom_serie O)) (den (geom_serie O))=false)
-  that is equivalent to (leb O (S O)=true∧eqb O (den (geom_serie O))=false)
   done
+  case S (y:ℕ)
+  done
+  by H9 we proved (x=O∨∃w:ℕ. x=(S w)) (H1)
+  we proceed by induction on H1 to prove  (leb (num (geom_serie x)) (den (geom_serie x))=true∧eqb (num (geom_serie x)) (den (geom_serie x))=false)
+  case or_introl
+  suppose (x=O) (H2)
+  >H2
+  we need to prove  (leb (num (geom_serie O)) (den (geom_serie O))=true∧eqb (num (geom_serie O)) (den (geom_serie O))=false)
+  that is equivalent to  (leb O (S O)=true∧eqb (num (geom_serie O)) (den (geom_serie O))=false)
+  done
+  case or_intror
+  suppose (∃w:ℕ.x=S w) (H2)
+  let w:ℕ such that (x=S w) (H3)
+  >H3
+  we need to prove  (leb (num (geom_serie (S w))) (den (geom_serie (S w)))=true∧eqb (num (geom_serie (S w))) (den (geom_serie (S w)))=false)
+  that is equivalent to  (leb (sum_2_exp w) (den (geom_serie (S w)))=true ∧eqb (num (geom_serie (S w))) (den (geom_serie (S w)))=false)
+  that is equivalent to (leb (sum_2_exp w) (exp 2 (S w))=true ∧eqb (num (geom_serie (S w))) (exp 2 (S w))=false)
+  that is equivalent to (leb (sum_2_exp w) (exp 2 (S w))=true∧eqb (sum_2_exp w) (exp 2 (S w))=false)
+  that is equivalent to (leb (sum_2_exp w) (2*(exp 2 w))=true∧eqb (sum_2_exp w) (2*(exp 2 w))=false)
+  we proceed by induction on w to prove  (leb (sum_2_exp w) (2*exp 2 w)=true∧eqb (sum_2_exp w) (2*exp 2 w)=false)
+  case O
+  done
+  case S (y:ℕ)
+  by induction hypothesis we know (leb (sum_2_exp y) (2*exp 2 y)=true∧eqb (sum_2_exp y) (2*exp 2 y)=false) (II)
+  we need to prove (leb (sum_2_exp (S y)) (2*exp 2 (S y))=true∧eqb (sum_2_exp (S y)) (2*exp 2 (S y))=false)
+  that is equivalent to  (leb (exp 2 (S y) + (sum_2_exp y)) (2*exp 2 (S y))=true∧eqb (exp 2 (S y) + (sum_2_exp y)) (2*exp 2 (S y))=false)
+  that is equivalent to (leb (exp 2 (S y) + (sum_2_exp y)) (2*(2*exp 2 y))=true∧eqb (exp 2 (S y) + (sum_2_exp y)) (2*(2*exp 2 y))=false)
+  that is equivalent to (leb ((2*(exp 2 y)) + (sum_2_exp y)) (2*(2*exp 2 y))=true∧eqb ((2*(exp 2 y)) + (sum_2_exp y)) (2*(2*exp 2 y))=false)
+  we need to prove (leb (sum_2_exp y) (2*exp 2 y) = true) (H4)
+  we need to prove ((2*exp 2 y) = (exp 2 (S y))) (H5)
+  done
+  >H5
+  we need to prove ((sum_2_exp y) + 1 = exp 2 (S y) →  (leb (sum_2_exp y) (exp 2 (S y))=true)) (H6)
+  done
+  by test02 we proved (leb (sum_2_exp y) (exp 2 (S y))=true) (H7)
+  done
+  we need to prove (∀a,b:ℕ. (leb b a = true) → (leb (a+b) (2*a) = true)) (H5)
+  assume a:ℕ
+  we proceed by induction on a to prove  (∀b:ℕ.leb b a=true→leb (a+b) (2*a)=true)
+  case O
+  done
+  case S (c:ℕ)
+  by induction hypothesis we know (∀b:ℕ.leb b c=true→leb (c+b) (2*c)=true) (KK)
+  we need to prove  (∀b:ℕ.leb b (S c)=true→leb (S c+b) (2*S c)=true)
+  assume b:ℕ
+  we need to prove (b=O∨∃d:ℕ. b=(S d)) (H5)
+  by H9 done
+  we proceed by cases on H5 to prove  (leb b (S c)=true→leb (S c+b) (2*S c)=true)
+  case or_introl
+  done
+  case or_intror
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
   
   
   
